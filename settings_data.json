@@ -1,0 +1,29 @@
+{
+    "dir_path": {
+        "patent": {
+            "gold": "./data/patent/gold",
+            "silver": "./data/patent/silver"
+        },
+        "atomic": {
+            "gold": "./data/atomic/gold",
+            "silver": "./data/atomic/silver"
+        }
+    },
+
+    "parameters_silver": {
+        "model": "stockmark/stockmark-13b",
+        "head": {
+            "few_shot_exam": 10,
+            "temperature": 0.6,
+            "top_p": 0.9,
+            "return_num": 10,
+            "try_num": 5000
+        },
+        "tail": {
+            "few_shot_exam": 15,
+            "temperature": 1.0,
+            "top_p": 0.9,
+            "return_num": 10
+        }
+    }
+}
