@@ -49,10 +49,24 @@ def generate_tail(model, gold_data, save_name, settings, head_list):
 
 def load_head(settings, patent_domain):
 
+    gened_files = [f"情報系_triple_{1.0}_no{no}.json" for no in [0, 1, 2, 3, 4, 5]]
+    used_head = []
+    for f in gened_files:
+        with open(os.path.join(settings["dir_path"]["patent"]["silver"], f), "r") as f:
+            data = json.load(f)
+        for d in data:
+            used_head.append(d["head"])
+
     with open(os.path.join(settings["dir_path"]["patent"]["silver"], f"{patent_domain}_head.json"), "r") as f:
         head = json.load(f)
+    
+    return_head = list(set(head) - set(used_head))
+    
+    print(f"used_head: {len(used_head)}")
+    print(f"head: {len(head)}")
+    print(f"return_head: {len(return_head)}")
 
-    return head
+    return return_head
 
 
 def main(settings, patent_domain):
@@ -64,8 +78,8 @@ def main(settings, patent_domain):
     #generated_head = generate_head(model, gold, settings, patent_domain)
     generated_head = load_head(settings, patent_domain)
     split_num = 1000
-    for idx, i in tqdm(enumerate(range(0, len(generated_head), split_num)), desc="generating tail..."):
-        generate_tail(model, gold, f"{patent_domain}_triple_{str(settings["parameters_silver"]["tail"]["temperature"])}_no{idx}.json", settings, generated_head[i:i+split_num])
+    for idx, i in tqdm(enumerate(range(0, len(generated_head), split_num)), desc="generating tail...", total=len(generated_head)//split_num):
+        generate_tail(model, gold, f"{patent_domain}_triple_{str(settings["parameters_silver"]["tail"]["temperature"])}_no{idx+6}.json", settings, generated_head[i:i+split_num])
 
 
 if __name__ == "__main__":

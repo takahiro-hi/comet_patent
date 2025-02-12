@@ -1,0 +1,8 @@
+{
+    "train_parameters": {
+        "model_name": "nlp-waseda/got-2-sumall-japanese",
+        "batch_size": 16,
+        "learning_rate": 2e-5,
+        "num_epochs": 3
+    }
+}
