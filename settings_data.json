@@ -1,5 +1,6 @@
 {
     "dir_path": {
+        "data": "./data",
         "patent": {
             "gold": "./data/patent/gold",
             "silver": "./data/patent/silver"

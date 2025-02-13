@@ -6,28 +6,51 @@ def to_input_format(head, tail):
 
     assert len(head) != 0 or len(tail) != 0, "Either head or tail must be non-empty."
 
-    head = head[:-1] if head[-1] == "。" else head
-    tail = tail[:-1] if tail[-1] == "。" else tail
+    # シルバーデータには空文字も含まれる
+    if len(head) != 0 and head[-1] == "。":
+        head = head[:-1]
+    if len(tail) != 0 and tail[-1] == "。":
+        tail = tail[:-1]
 
     return [head, tail]
 
 
-def load_gold(settings, data_type, patent_domain):
-
-    assert data_type in ["patent", "atomic"], "data_type must be either 'patent' or 'atomic'."
-    assert patent_domain in ["情報系", "化学系"], "patent_domain must be either '情報系' or '化学系'."
+def load_gold(settings, data_type, patent_domain=None):
 
     if data_type == "patent":
-        data_path = os.path.join(settings["dir_path"][data_type]["gold"], f"{patent_domain}_ADV.json")
+        assert patent_domain in ["情報系", "化学系"], "patent_domain must be either '情報系' or '化学系'."
+
+        with open(os.path.join(settings["dir_path"][data_type]["gold"], f"{patent_domain}_ADV.json"), "r") as f:
+            data = json.load(f)
+        ret_data = [to_input_format(d["head"]["content"], d["tail"]["content"]) for d in data]
+
     elif data_type == "atomic":
-        data_path = os.path.join(settings["dir_path"][data_type]["gold"], f"{patent_domain}_ADV.json")
+        #data_path = os.path.join(settings["dir_path"][data_type]["gold"], f"{patent_domain}_ADV.json")
+        assert False, "Not implemented yet."
     
-    with open(data_path, "r") as f:
-        data = json.load(f)
-    
-    ret_data = [to_input_format(d["head"]["content"], d["tail"]["content"]) for d in data]
+    else:
+        assert False, "Invalid data_type."
 
     return ret_data
+
+
+def load_silver(settings, data_type, patent_domain=None):
+
+    if data_type == "patent":
+        assert patent_domain in ["情報系", "化学系"], "patent_domain must be either '情報系' or '化学系'."
+
+        with open(os.path.join(settings["dir_path"][data_type]["silver"], f"{patent_domain}_triple_{settings["parameters_silver"]["tail"]["temperature"]}.json"), "r") as f:
+            data = json.load(f)
+        ret_data = [to_input_format(d["head"], tail) for d in data for tail in d["tail"]]
+    
+    elif data_type == "atomic":
+        assert False, "Not implemented yet."
+
+    else:
+        assert False, "Invalid data_type."
+    
+    return ret_data
+
 
 
 
