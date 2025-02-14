@@ -1,4 +1,4 @@
-import json, sys, datasets, argparse
+import json, sys, datasets, argparse, os, wandb
 
 from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, DataCollatorForLanguageModeling, Trainer
 
@@ -25,7 +25,7 @@ def load_dataset(settings_data, patent_domain, tokenizer):
         lambda examples: tokenizer(
             examples["data"],
             truncation = True,
-            max_length = 128,
+            max_length = 256,
         ),
         batched = True,
         remove_columns = datasets_dict["train"].column_names
@@ -52,9 +52,9 @@ class DataCollatorForComet(DataCollatorForLanguageModeling):
 
 
 
-def main(settings_comet, settings_data, patent_domain, device):
+def main(settings_comet, settings_data, patent_domain):
 
-    model = AutoModelForCausalLM.from_pretrained(settings_comet["train_parameters"]["model_name"])
+    model = AutoModelForCausalLM.from_pretrained(settings_comet["train_parameters"]["model_name"]).to("cuda")
     tokenizer = AutoTokenizer.from_pretrained(settings_comet["train_parameters"]["model_name"])
     datasets_dict = load_dataset(settings_data, patent_domain, tokenizer)
 
@@ -62,17 +62,22 @@ def main(settings_comet, settings_data, patent_domain, device):
     assert len(tokenizer.encode(ADV_TOKEN, add_special_tokens=False)) == 1, "not added properly"
 
     args = TrainingArguments(
+        do_train = True,
+        do_eval = True,
+        eval_strategy = "steps",
+        eval_steps = 1000,
+        logging_steps = 1000,
+        save_steps = 1000,
         output_dir = settings_comet["train_parameters"]["output_dir"],
-        evaluation_strategy = settings_comet["train_parameters"]["evaluation_strategy"],
-        eval_steps = settings_comet["train_parameters"]["eval_steps"],
+        logging_dir = settings_comet["train_parameters"]["logging_dir"],
         per_device_train_batch_size = settings_comet["train_parameters"]["per_device_train_batch_size"],
         per_device_eval_batch_size = settings_comet["train_parameters"]["per_device_eval_batch_size"],
         learning_rate = settings_comet["train_parameters"]["learning_rate"],
         weight_decay = settings_comet["train_parameters"]["weight_decay"],
         num_train_epochs = settings_comet["train_parameters"]["num_train_epochs"],
-        logging_strategy = settings_comet["train_parameters"]["logging_strategy"],
-        logging_steps = settings_comet["train_parameters"]["logging_steps"],
-        save_strategy = settings_comet["train_parameters"]["save_strategy"]
+        save_total_limit = 5,
+        load_best_model_at_end = True,
+        report_to = "wandb",
     )
 
     tokenizer.pad_token = tokenizer.eos_token
@@ -95,11 +100,19 @@ def main(settings_comet, settings_data, patent_domain, device):
 
 
 if __name__ == "__main__":
+    """
+    nohup python scripts/comet/train.py --device_id "2, 3" --patent_domain 情報系 --run_name trial &
+    """
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--device_id", type=str)
+    parser.add_argument("--device_ids", type=str)
     parser.add_argument("--patent_domain", type=str, default="情報系")
+    parser.add_argument("--run_name", type=str)
     args = parser.parse_args()
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.device_ids
+    os.environ["WANDB_PROJECT"]= f"COMET_patent_{args.patent_domain}"
+    os.environ["WANDB_LOG_MODEL"] = "checkpoint"
 
     with open("./settings_comet.json", "r") as f:
         settings_comet = json.load(f)
@@ -107,4 +120,6 @@ if __name__ == "__main__":
     with open("./settings_data.json", "r") as f:
         settings_data = json.load(f)
 
-    main(settings_comet, settings_data, args.patent_domain, f"cuda:{args.device_id}")
+    wandb.init(project=f"COMET_patent_{args.patent_domain}", run_name=args.run_name)
+    main(settings_comet, settings_data, args.patent_domain)
+    wandb.finish()

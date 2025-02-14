@@ -19,3 +19,6 @@ _*/
 
 # generated data
 data/patent/silver/*
+
+# result
+result/*

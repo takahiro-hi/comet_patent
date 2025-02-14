@@ -6,15 +6,11 @@
     "train_parameters": {
         "model_name": "nlp-waseda/comet-v2-gpt2-small-japanese",
         "output_dir": "./result/comet",
-        "evaluation_steps": "steps",
-        "eval_steps": 1000,
+        "logging_dir": "./result/comet/logs",
         "per_device_train_batch_size": 16,
         "per_device_eval_batch_size": 16,
         "learning_rate": 2e-5,
         "weight_decay": 0.01,
-        "num_train_epochs": 3,
-        "logging_strategy": "steps",
-        "logging_steps": 100,
-        "save_strategy": "epochs"
+        "num_train_epochs": 2
     }
 }

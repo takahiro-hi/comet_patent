@@ -1,0 +1,15 @@
+{"time":"2025-02-14T17:21:00.847725025+09:00","level":"INFO","msg":"stream: starting","core version":"0.19.6","symlink path":"/mnt/home/takahiro-h/comet_patent/wandb/run-20250214_172100-yoq4n8qf/logs/debug-core.log"}
+{"time":"2025-02-14T17:21:00.965364982+09:00","level":"INFO","msg":"created new stream","id":"yoq4n8qf"}
+{"time":"2025-02-14T17:21:00.965429792+09:00","level":"INFO","msg":"stream: started","id":"yoq4n8qf"}
+{"time":"2025-02-14T17:21:00.965488762+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"yoq4n8qf"}
+{"time":"2025-02-14T17:21:00.965612121+09:00","level":"INFO","msg":"handler: started","stream_id":"yoq4n8qf"}
+{"time":"2025-02-14T17:21:00.966484326+09:00","level":"INFO","msg":"sender: started","stream_id":"yoq4n8qf"}
+{"time":"2025-02-14T17:21:01.399334058+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-14T17:28:26.017492841+09:00","level":"INFO","msg":"stream: closing","id":"yoq4n8qf"}
+{"time":"2025-02-14T17:28:26.0177292+09:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-14T17:28:26.018559405+09:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-14T17:28:26.918679999+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-14T17:28:27.166337368+09:00","level":"INFO","msg":"handler: closed","stream_id":"yoq4n8qf"}
+{"time":"2025-02-14T17:28:27.166388147+09:00","level":"INFO","msg":"writer: Close: closed","stream_id":"yoq4n8qf"}
+{"time":"2025-02-14T17:28:27.166432187+09:00","level":"INFO","msg":"sender: closed","stream_id":"yoq4n8qf"}
+{"time":"2025-02-14T17:28:27.170394026+09:00","level":"INFO","msg":"stream: closed","id":"yoq4n8qf"}

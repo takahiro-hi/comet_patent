@@ -1,0 +1,25 @@
+2025-02-14 18:10:55,943 INFO    MainThread:657413 [wandb_setup.py:_flush():68] Current SDK version is 0.19.6
+2025-02-14 18:10:55,943 INFO    MainThread:657413 [wandb_setup.py:_flush():68] Configure stats pid to 657413
+2025-02-14 18:10:55,943 INFO    MainThread:657413 [wandb_setup.py:_flush():68] Loading settings from /mnt/home/takahiro-h/.config/wandb/settings
+2025-02-14 18:10:55,943 INFO    MainThread:657413 [wandb_setup.py:_flush():68] Loading settings from /mnt/home/takahiro-h/comet_patent/wandb/settings
+2025-02-14 18:10:55,943 INFO    MainThread:657413 [wandb_setup.py:_flush():68] Loading settings from environment variables
+2025-02-14 18:10:55,944 INFO    MainThread:657413 [wandb_init.py:setup_run_log_directory():637] Logging user logs to /mnt/home/takahiro-h/comet_patent/wandb/run-20250214_181055-qcbm4al2/logs/debug.log
+2025-02-14 18:10:55,947 INFO    MainThread:657413 [wandb_init.py:setup_run_log_directory():638] Logging internal logs to /mnt/home/takahiro-h/comet_patent/wandb/run-20250214_181055-qcbm4al2/logs/debug-internal.log
+2025-02-14 18:10:55,947 INFO    MainThread:657413 [wandb_init.py:init():756] calling init triggers
+2025-02-14 18:10:55,947 INFO    MainThread:657413 [wandb_init.py:init():761] wandb.init called with sweep_config: {}
+config: {'_wandb': {}}
+2025-02-14 18:10:55,947 INFO    MainThread:657413 [wandb_init.py:init():789] starting backend
+2025-02-14 18:10:56,164 INFO    MainThread:657413 [wandb_init.py:init():793] sending inform_init request
+2025-02-14 18:10:56,171 INFO    MainThread:657413 [backend.py:_multiprocessing_setup():97] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2025-02-14 18:10:56,172 INFO    MainThread:657413 [wandb_init.py:init():808] backend started and connected
+2025-02-14 18:10:56,179 INFO    MainThread:657413 [wandb_init.py:init():901] updated telemetry
+2025-02-14 18:10:56,198 INFO    MainThread:657413 [wandb_init.py:init():936] communicating run to backend with 90.0 second timeout
+2025-02-14 18:10:56,528 ERROR   MainThread:657413 [wandb_init.py:init():1481] error in wandb.init()
+Traceback (most recent call last):
+  File "/mnt/home/takahiro-h/comet_patent/.venv/lib/python3.13/site-packages/wandb/sdk/wandb_init.py", line 1471, in init
+    return wi.init(run_settings, run_config)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/takahiro-h/comet_patent/.venv/lib/python3.13/site-packages/wandb/sdk/wandb_init.py", line 967, in init
+    raise error
+wandb.errors.errors.CommError: failed to upsert bucket: returned error 403 Forbidden: {"errors":[{"message":"permission denied","path":["upsertBucket"],"extensions":{"code":"PERMISSION_ERROR"}}],"data":{"upsertBucket":null}}
+2025-02-14 18:10:56,543 WARNING MsgRouterThr:657413 [router.py:message_loop():75] message_loop has been closed
