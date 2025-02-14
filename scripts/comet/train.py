@@ -1,145 +1,110 @@
-import josn
+import json, sys, datasets, argparse
 
-from transformers import (
-    AutoTokenizer,
-    AutoModelForCausalLM,
-    DataCollatorForLanguageModeling,
-    TrainingArguments,
-    Trainer
-)
+from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, DataCollatorForLanguageModeling, Trainer
 
-NEED_TOKEN = 'xNeed'
-EFFECT_TOKEN = 'xEffect'
-INTENT_TOKEN = 'xIntent'
-REACT_TOKEN = 'xReact'
+sys.path.append("./scripts/utils")
+from load_data import load_gold, load_silver
 
 
-def main():
+ADV_TOKEN = "xEffect"
 
 
-    dataset = load_dataset('json', data_files=args.graph_jsonl, split='train')
-    raw_datasets = dataset.train_test_split(test_size=0.1, shuffle=True, seed=42)
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
+def load_dataset(settings_data, patent_domain, tokenizer):
 
-    special_tokens_dict = {
-        'additional_special_tokens': [
-            NEED_TOKEN,
-            EFFECT_TOKEN,
-            INTENT_TOKEN,
-            REACT_TOKEN,
-        ]
-    }
-    num_added_toks = tokenizer.add_special_tokens(special_tokens_dict)
+    gold_data = load_gold(settings_data, "patent", patent_domain)
+    silver_data = load_silver(settings_data, "patent", patent_domain)
 
+    datasets_dict = datasets.DatasetDict({
+        "train": datasets.Dataset.from_dict({"data": [d[0] + ADV_TOKEN + d[1] for d in silver_data[:int(len(silver_data) * 0.9)]]}),
+        "validation": datasets.Dataset.from_dict({"data": [d[0] + ADV_TOKEN + d[1] for d in silver_data[int(len(silver_data) * 0.9):]]}),
+        "test": datasets.Dataset.from_dict({"data": [d[0] + ADV_TOKEN + d[1] for d in gold_data]})
+    })
 
-    def preprocess_function(examples):
-        outputs = []
-
-        for head_text, inf_type_dict in zip(examples['event'], examples['inference']):
-            for inf_type, inf_dir_dict in inf_type_dict.items():
-                if inf_dir_dict is None:
-                    continue
-
-                for inf_dir, tail_list in inf_dir_dict.items():
-                    if tail_list is None:
-                        continue
-
-                    if inf_type == 'event':
-                        if inf_dir == 'before':
-                            rel_token = NEED_TOKEN
-                        else:
-                            rel_token = EFFECT_TOKEN
-                    else:
-                        if inf_dir == 'before':
-                            rel_token = INTENT_TOKEN
-                        else:
-                            rel_token = REACT_TOKEN
-
-                    for tail_text in tail_list:
-                        output = head_text + rel_token + tail_text + tokenizer.eos_token
-                        outputs.append(output)
-
-        return {'data': outputs}
-
-
-    preprocessed_datasets = raw_datasets.map(
-        preprocess_function,
-        batched=True,
-        remove_columns=dataset.column_names,
-    )
-
-    tokenized_datasets = preprocessed_datasets.map(
+    tokenized_datasets = datasets_dict.map(
         lambda examples: tokenizer(
-            examples['data'],
-            truncation=True,
-            max_length=args.max_length,
+            examples["data"],
+            truncation = True,
+            max_length = 128,
         ),
-        batched=True,
-        remove_columns=preprocessed_datasets['train'].column_names,
+        batched = True,
+        remove_columns = datasets_dict["train"].column_names
     )
 
-    model = AutoModelForCausalLM.from_pretrained(args.model_name_or_path)
-    model.resize_token_embeddings(len(tokenizer))
+    return tokenized_datasets
+
+
+
+class DataCollatorForComet(DataCollatorForLanguageModeling):
+
+    def torch_call(self, examples):
+
+        batch = super().torch_call(examples)            
+        labels = batch['labels']
+
+        rel_mask = labels >= self.tokenizer.vocab_size
+        tail_mask = (rel_mask.cumsum(dim=-1) - rel_mask.to(int)).to(bool)
+        labels[~tail_mask] = -100
+
+        batch['labels'] = labels
+
+        return batch
+
+
+
+def main(settings_comet, settings_data, patent_domain, device):
+
+    model = AutoModelForCausalLM.from_pretrained(settings_comet["train_parameters"]["model_name"])
+    tokenizer = AutoTokenizer.from_pretrained(settings_comet["train_parameters"]["model_name"])
+    datasets_dict = load_dataset(settings_data, patent_domain, tokenizer)
+
+    assert model.get_input_embeddings().weight.shape[0] == len(tokenizer), "not added properly"
+    assert len(tokenizer.encode(ADV_TOKEN, add_special_tokens=False)) == 1, "not added properly"
 
     args = TrainingArguments(
-        output_dir=args.output_dir,
-        evaluation_strategy='epoch',
-        per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=args.batch_size,
-        learning_rate=args.learning_rate,
-        weight_decay=0.01,
-        num_train_epochs=args.num_epochs,
-        logging_strategy='epoch',
-        save_strategy='no',
+        output_dir = settings_comet["train_parameters"]["output_dir"],
+        evaluation_strategy = settings_comet["train_parameters"]["evaluation_strategy"],
+        eval_steps = settings_comet["train_parameters"]["eval_steps"],
+        per_device_train_batch_size = settings_comet["train_parameters"]["per_device_train_batch_size"],
+        per_device_eval_batch_size = settings_comet["train_parameters"]["per_device_eval_batch_size"],
+        learning_rate = settings_comet["train_parameters"]["learning_rate"],
+        weight_decay = settings_comet["train_parameters"]["weight_decay"],
+        num_train_epochs = settings_comet["train_parameters"]["num_train_epochs"],
+        logging_strategy = settings_comet["train_parameters"]["logging_strategy"],
+        logging_steps = settings_comet["train_parameters"]["logging_steps"],
+        save_strategy = settings_comet["train_parameters"]["save_strategy"]
     )
-
-
-    class DataCollatorForComet(DataCollatorForLanguageModeling):
-        def torch_call(self, examples):
-            batch = super().torch_call(examples)            
-            labels = batch['labels']
-
-            # consider eos
-            eos_mask = labels == -100
-            eos_mask[:, 1:] = eos_mask[:, 1:] ^ eos_mask[:, :-1]
-            labels[eos_mask] = self.tokenizer.eos_token_id
-
-            # ignore h and r
-            rel_mask = labels >= len(tokenizer)
-            tail_mask = (rel_mask.cumsum(dim=-1) - rel_mask.to(int)).to(bool)
-            labels[~tail_mask] = -100
-
-            batch['labels'] = labels
-            return batch
-
 
     tokenizer.pad_token = tokenizer.eos_token
     data_collator = DataCollatorForComet(
-        tokenizer=tokenizer,
-        mlm=False,
+        tokenizer = tokenizer,
+        mlm = False
     )
 
     trainer = Trainer(
-        model=model,
-        args=args,
-        train_dataset=tokenized_datasets['train'],
-        eval_dataset=tokenized_datasets['test'],
-        data_collator=data_collator,
-        tokenizer=tokenizer,
+        model = model,
+        args = args,
+        train_dataset = datasets_dict["train"],
+        eval_dataset = datasets_dict["validation"],
+        data_collator = data_collator,
+        tokenizer = tokenizer
     )
 
     trainer.train()
 
-    trainer.save_model()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--device_id", type=str)
+    parser.add_argument("--patent_domain", type=str, default="情報系")
+    args = parser.parse_args()
 
     with open("./settings_comet.json", "r") as f:
-        settings = json.load(f)
+        settings_comet = json.load(f)
+    
+    with open("./settings_data.json", "r") as f:
+        settings_data = json.load(f)
 
-    main(settings)
-
-
-
+    main(settings_comet, settings_data, args.patent_domain, f"cuda:{args.device_id}")
