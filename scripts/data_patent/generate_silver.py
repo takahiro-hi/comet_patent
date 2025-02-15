@@ -1,4 +1,4 @@
-import os, json, random, sys
+import os, json, random, sys, argparse
 from tqdm import tqdm
 
 from prompt_template import construct_prompt_for_head, construct_prompt_for_tail
@@ -33,13 +33,13 @@ def generate_head(model, gold_data, settings, patent_domain):
     return saved_data
 
 
-def generate_tail(model, gold_data, save_name, settings, head_list):
+def generate_tail(model, gold_data, save_name, settings, args, head_list):
 
     generated_tail = []
 
     for head in tqdm(head_list):
         prompt = construct_prompt_for_tail(gold_data, settings["parameters_silver"]["tail"]["few_shot_exam"], target_head=head)
-        generated_data = model(prompt, "tail")
+        generated_data = model(prompt, "tail", temperature=args.temperature_tail)
         generated_data = list(set(generated_data))
         generated_tail.append({"head": head, "tail": generated_data})
 
@@ -55,29 +55,35 @@ def load_head(settings, patent_domain):
     return head
 
 
-def main(settings, patent_domain):
+def main(settings, args):
 
     model = Model(settings)
 
-    gold = load_gold(settings, "patent", patent_domain)
+    gold = load_gold(settings, args.gold_type, args.patent_domain)
 
-    #generated_head = generate_head(model, gold, settings, patent_domain)
-    generated_head = load_head(settings, patent_domain)
+    #generated_head = generate_head(model, gold, settings, args.patent_domain)
+    generated_head = load_head(settings, args.patent_domain)
     split_num = 1000
     for idx, i in tqdm(enumerate(range(0, len(generated_head), split_num)), desc="generating tail...", total=len(generated_head)//split_num):
-        generate_tail(model, gold, f"{patent_domain}_triple_{str(settings["parameters_silver"]["tail"]["temperature"])}_no{idx}.json", settings, generated_head[i:i+split_num])
+        generate_tail(model, gold, f"{args.patent_domain}_triple_{args.temperature_tail}_no{idx}.json", settings, args, generated_head[i:i+split_num])
 
 
 if __name__ == "__main__":
     """
-    nohup python scripts/data_patent/generate_silver.py  &
+    nohup python scripts/data_patent/generate_silver.py  --temperature_tail 1.0 --gold_type patent pattent_domain 情報系 &
     """
+
+    parser = argparse.ArgumentParer()
+    parser.add_argument("--temperature_tail", type=float)
+    parser.add_argument("--gold_type", type=str)
+    parser.add_argument("--patent_domain", type=str, default="情報系")
+    args = parser.parse_args()
 
     with open("./settings_data.json", "r") as f:
         settings = json.load(f)
 
     random.seed(1)
 
-    os.makedirs(settings["dir_path"]["patent"]["silver"], exist_ok=True)
+    os.makedirs(settings["dir_path"][args.gold_type]["silver"], exist_ok=True)
 
-    main(settings, "情報系")
+    main(settings, args)

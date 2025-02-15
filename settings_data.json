@@ -22,7 +22,6 @@
         },
         "tail": {
             "few_shot_exam": 15,
-            "temperature": 1.0,
             "top_p": 0.9,
             "return_num": 10
         }

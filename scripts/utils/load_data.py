@@ -12,17 +12,17 @@ def to_input_format(head, tail):
     return [head, tail]
 
 
-def load_gold(settings, data_type, patent_domain=None):
+def load_gold(settings_data, data_type, patent_domain=None):
 
     if data_type == "patent":
         assert patent_domain in ["情報系", "化学系"], "patent_domain must be either '情報系' or '化学系'."
 
-        with open(os.path.join(settings["dir_path"][data_type]["gold"], f"{patent_domain}_ADV.json"), "r") as f:
+        with open(os.path.join(settings_data["dir_path"][data_type]["gold"], f"{patent_domain}_ADV.json"), "r") as f:
             data = json.load(f)
         ret_data = [to_input_format(d["head"]["content"], d["tail"]["content"]) for d in data]
 
     elif data_type == "atomic":
-        #data_path = os.path.join(settings["dir_path"][data_type]["gold"], f"{patent_domain}_ADV.json")
+        #data_path = os.path.join(settings_data["dir_path"][data_type]["gold"], f"{patent_domain}_ADV.json")
         assert False, "Not implemented yet."
     
     else:
@@ -31,12 +31,12 @@ def load_gold(settings, data_type, patent_domain=None):
     return ret_data
 
 
-def load_silver(settings, data_type, patent_domain=None):
+def load_silver(settings_data, temperature, data_type, patent_domain=None):
 
     if data_type == "patent":
         assert patent_domain in ["情報系", "化学系"], "patent_domain must be either '情報系' or '化学系'."
 
-        with open(os.path.join(settings["dir_path"][data_type]["silver"], f"{patent_domain}_triple_{settings["parameters_silver"]["tail"]["temperature"]}.json"), "r") as f:
+        with open(os.path.join(settings_data["dir_path"][data_type]["silver"], f"{patent_domain}_triple_{temperature}.json"), "r") as f:
             data = json.load(f)
         ret_data = [to_input_format(d["head"], tail) for d in data for tail in d["tail"] if len(tail) > 0]
     
@@ -56,5 +56,5 @@ if __name__ == "__main__":
     with open("./settings_data.json", "r") as f:
         settings = json.load(f)
 
-    data = load_silver(settings, "patent", "情報系")
+    data = load_silver(settings, 1.0, "patent", "情報系")
     print(data[:10])
