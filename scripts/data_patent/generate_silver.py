@@ -1,4 +1,4 @@
-import os, json, random, sys, argparse
+import os, json, sys, argparse
 from tqdm import tqdm
 
 from prompt_template import construct_prompt_for_head, construct_prompt_for_tail
@@ -64,25 +64,28 @@ def main(settings, args):
     #generated_head = generate_head(model, gold, settings, args.patent_domain)
     generated_head = load_head(settings, args.patent_domain)
     split_num = 1000
+    print(args.temperature_tail)
     for idx, i in tqdm(enumerate(range(0, len(generated_head), split_num)), desc="generating tail...", total=len(generated_head)//split_num):
         generate_tail(model, gold, f"{args.patent_domain}_triple_{args.temperature_tail}_no{idx}.json", settings, args, generated_head[i:i+split_num])
 
 
+
 if __name__ == "__main__":
     """
-    nohup python scripts/data_patent/generate_silver.py  --temperature_tail 1.0 --gold_type patent pattent_domain 情報系 &
+    nohup python scripts/data_patent/generate_silver.py --device_id "2, 3" --temperature_tail 1.3 --gold_type patent --patent_domain 情報系 &
     """
 
-    parser = argparse.ArgumentParer()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--device_ids", type=str)
     parser.add_argument("--temperature_tail", type=float)
     parser.add_argument("--gold_type", type=str)
     parser.add_argument("--patent_domain", type=str, default="情報系")
     args = parser.parse_args()
 
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.device_ids
+
     with open("./settings_data.json", "r") as f:
         settings = json.load(f)
-
-    random.seed(1)
 
     os.makedirs(settings["dir_path"][args.gold_type]["silver"], exist_ok=True)
 

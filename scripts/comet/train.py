@@ -9,6 +9,8 @@ from transformers import (
 )
 from transformers.integrations import WandbCallback
 
+from utils import get_settings
+
 sys.path.append("./scripts/utils")
 from load_data import load_gold, load_silver
 
@@ -25,7 +27,7 @@ def to_input_format(head, tail, tokenizer):
 def load_dataset(settings, args_cli, tokenizer):
 
     gold_data = load_gold(settings["data"], "patent", args_cli.patent_domain)
-    silver_data = load_silver(settings["data"], settings["comet"]["train_parameters"]["tr_silver_temperature"], "patent", args_cli.patent_domain)
+    silver_data = load_silver(settings["data"], settings["tr_params"]["tr_silver_temperature"], "patent", args_cli.patent_domain)
 
     datasets_dict = datasets.DatasetDict({
         "train": datasets.Dataset.from_dict({"data": [to_input_format(d[0], d[1], tokenizer) for d in silver_data[:int(len(silver_data) * 0.9)]]}),
@@ -109,10 +111,10 @@ class CustomWandbCallback(WandbCallback):
 
 def main(settings, args_cli):
 
-    settings_comet_tr = settings["comet"]["train_parameters"]
+    params_comet_tr = settings["tr_params"]
 
-    model = AutoModelForCausalLM.from_pretrained(settings_comet_tr["model_name"]).to("cuda")
-    tokenizer = AutoTokenizer.from_pretrained(settings_comet_tr["model_name"], padding_side="left")
+    model = AutoModelForCausalLM.from_pretrained(params_comet_tr["model_name"]).to("cuda")
+    tokenizer = AutoTokenizer.from_pretrained(params_comet_tr["model_name"], padding_side="left")
     datasets_dict, test_data = load_dataset(settings, args_cli, tokenizer)
 
     assert model.get_input_embeddings().weight.shape[0] == len(tokenizer), "not added properly (1)"
@@ -126,13 +128,13 @@ def main(settings, args_cli):
         eval_steps = interval,
         logging_steps = interval,
         save_steps = interval,
-        output_dir = settings_comet_tr["output_dir"],
-        logging_dir = settings_comet_tr["logging_dir"],
-        per_device_train_batch_size = settings_comet_tr["per_device_train_batch_size"],
-        per_device_eval_batch_size = settings_comet_tr["per_device_eval_batch_size"],
-        learning_rate = settings_comet_tr["learning_rate"],
-        weight_decay = settings_comet_tr["weight_decay"],
-        num_train_epochs = settings_comet_tr["num_train_epochs"],
+        output_dir = settings["result_path"][args_cli.patent_domain]["comet"],
+        logging_dir = os.path.join(settings["result_path"][args_cli.patent_domain]["comet"], "logs"),
+        per_device_train_batch_size = params_comet_tr["per_device_train_batch_size"],
+        per_device_eval_batch_size = params_comet_tr["per_device_eval_batch_size"],
+        learning_rate = params_comet_tr["learning_rate"],
+        weight_decay = params_comet_tr["weight_decay"],
+        num_train_epochs = params_comet_tr["num_train_epochs"],
         save_total_limit = 5,
         load_best_model_at_end = True,
         report_to = ["wandb", "tensorboard"],
@@ -163,6 +165,7 @@ def main(settings, args_cli):
 
 
 if __name__ == "__main__":
+
     """
     nohup python scripts/comet/train.py --device_id "2, 3" --patent_domain 情報系 --run_name trial &
     """
@@ -177,17 +180,13 @@ if __name__ == "__main__":
     os.environ["WANDB_PROJECT"]= f"COMET_patent_{args_cli.patent_domain}"
     os.environ["WANDB_LOG_MODEL"] = "checkpoint"
 
-    with open("./settings_comet.json", "r") as f:
-        settings_comet = json.load(f)
-    with open("./settings_data.json", "r") as f:
-        settings_data = json.load(f)
-    settings = {"comet": settings_comet, "data": settings_data}
+    settings = get_settings("comet")
 
     wandb.init(
         project = f"COMET_patent_{args_cli.patent_domain}", 
         name = args_cli.run_name,
-        config = settings["comet"],
-        dir = settings["comet"]["train_parameters"]["wandb_dir"]
+        config = settings["tr_params"],
+        dir = os.path.join(settings["result_path"][args_cli.patent_domain]["comet"], "wandb")
     )
 
     main(settings, args_cli)

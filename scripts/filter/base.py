@@ -4,30 +4,29 @@ from sklearn.metrics import accuracy_score
 from transformers import BertJapaneseTokenizer
 from tqdm import tqdm
 import torch.nn as nn
-import matplotlib.pyplot as plt
 import torch.optim as optim
 
 from model import Classifier
-from utils import tokenize_data
+from utils import tokenize_data, plot_x_iters, get_settings
 
 sys.path.append("./scripts/utils")
 from load_data import load_gold, load_silver
 
 
 
-def construct_train_data(args):
+def get_train_data(args, settings):
 
     pos = load_gold(settings["data"], args.gold_type, args.patent_domain)
-    neg = load_silver(settings["data"], args.gold_type, args.patent_domain)
+    neg = load_silver(settings["data"], args.temperature_tail, args.gold_type, args.patent_domain)
 
-    print(f"gold: {args.gold_type}, patent_domain: {args.patent_domain}")
+    print(f"gold type: {args.gold_type}, patent_domain: {args.patent_domain}")
     print(f"pos: {len(pos)}, neg: {len(neg)}")
 
-    assert len(pos) > len(neg), "somethig wrong with the data"
+    assert len(pos) < len(neg), "somethig wrong with the data"
 
-    pos = random.sample(pos, len(neg))
+    neg = random.sample(neg, len(pos))
     data = pos + neg
-    label = [1] * len(pos) + [0] * len(neg)
+    label = [1.] * len(pos) + [0.] * len(neg)
 
     combined = list(zip(data, label))
     random.shuffle(combined)
@@ -37,130 +36,123 @@ def construct_train_data(args):
 
 
 
-def main(result_path, config, args):
+def main(result_path, settings, args):
+
+    tr_parms = settings["tr_params"]
 
     # load data
-    _data, _label = load_train_data_for_step1(config, args.gold_type, args.data_type)
+    _data, _label = get_train_data(args, settings)
     split_idx = int(len(_data) * 0.8)
     train_data, train_label = _data[:split_idx], _label[:split_idx]
     val_data, val_label = _data[split_idx:], _label[split_idx:]
     
     # settings
-    torch.cuda.set_device(2)
-    device = "cuda"
-    ids = [2, 3]
-    model_name = config["base_train"]["model_name"]
-    tokenizer = BertJapaneseTokenizer.from_pretrained(model_name)
-    selector = Classifier(model_name).to(device)
-    selector = torch.nn.DataParallel(selector, device_ids=ids)
-    optimizer = optim.AdamW([
-        {"params": selector.module.model.parameters(), "lr": config["base_train"]["lr_bert"], "weight_decay": config["base_train"]["weight_decay"]},
-        {"params": selector.module.dense.parameters(), "lr": config["base_train"]["lr_head"], "weight_decay": config["base_train"]["weight_decay"]},
-        {"params": selector.module.out_proj.parameters(), "lr": config["base_train"]["lr_head"], "weight_decay": config["base_train"]["weight_decay"]}
-    ])
+    tokenizer = BertJapaneseTokenizer.from_pretrained(tr_parms["model_name"])
+    filter = Classifier(tr_parms["model_name"]).to("cuda")
+    filter = torch.nn.DataParallel(filter)
+    optimizer = optim.AdamW(filter.parameters(), lr=tr_parms["learning_rate"], weight_decay=tr_parms["weight_decay"])
     loss_func = nn.BCEWithLogitsLoss()
 
     patience_count = 0
-    flag_stop = False
-    # training and evaluation
-    loss_train, loss_val = [], []
-    for _ in tqdm(range(config["base_train"]["epochs"]), desc="training"):
-        if flag_stop:
-            break
-        for idx, step in enumerate(tqdm(range(0, len(train_label), config["base_train"]["batch_size"]), leave=False, desc="steps")):
-            # training
-            selector.train()
-            _tr_data = train_data[step:step+config["base_train"]["batch_size"]]
-            _tr_label = train_label[step:step+config["base_train"]["batch_size"]]
-            _tr_inps = tokenize_data(_tr_data, tokenizer, device)
+    best_loss = float("inf")
+    best_model_state = None
 
-            selector.zero_grad()
-            tr_pred = selector(**_tr_inps).squeeze(-1)
-            loss = loss_func(tr_pred, torch.tensor(_tr_label).to(device))
+    # training and evaluation
+    loss_train, loss_val = {"iteration":[], "loss":[]}, {"iteration":[], "loss":[]}
+    for epoch in tqdm(range(tr_parms["epochs"]), desc="training"):
+        for idx, step in enumerate(tqdm(range(0, len(train_label), tr_parms["batch_size"]), leave=False, desc="steps")):
+            total_step = idx + epoch * len(train_label) // tr_parms["batch_size"]
+
+            # training
+            filter.train()
+            _tr_data = train_data[step:step+tr_parms["batch_size"]]
+            _tr_label = train_label[step:step+tr_parms["batch_size"]]
+            _tr_inps = tokenize_data(_tr_data, tokenizer)
+
+            filter.zero_grad()
+            tr_pred = filter(**_tr_inps).squeeze(-1)
+            loss = loss_func(tr_pred, torch.tensor(_tr_label).to("cuda"))
             loss.backward()
             optimizer.step()
-            loss_train.append(loss.item())
+            loss_train["iteration"].append(total_step)
+            loss_train["loss"].append(loss.item())
 
-            # validation
-            selector.eval()
-            _val_inps = tokenize_data(val_data, tokenizer, device)
+        # evaluation
+        if epoch % tr_parms["eval_steps"] == 0 or epoch == tr_parms["epochs"] - 1:                
+            filter.eval()
+            _val_inps = tokenize_data(val_data, tokenizer)
             with torch.no_grad():
-                _val_pred = selector(**_val_inps).squeeze(-1)
-            loss_val.append(loss_func(_val_pred, torch.tensor(val_label).to(device)).item())
-            
+                _val_pred = filter(**_val_inps).squeeze(-1)
+            _loss = loss_func(_val_pred, torch.tensor(val_label).to("cuda")).item()
+            loss_val["iteration"].append(total_step)
+            loss_val["loss"].append(_loss)
+
+            _val_prob = torch.sigmoid(_val_pred).cpu().numpy()
+            acc = accuracy_score(val_label, (_val_prob >= 0.5).astype(int))
+            save_data = [{"data": data, "label": label, "prob": prob.item()} for data, label, prob in zip(val_data, val_label, _val_prob)]
+            save_data = sorted(save_data, key=lambda x: x["prob"], reverse=True)
+            save_txt = f"\n===={idx + epoch * len(train_label)}_acc:{acc}_loss:{_loss}====\n"
+            for d in save_data:
+                save_txt += f"{int(d['label'])}\t{round(d['prob'], 3)}\t{d['data']}\n"
+            with open(os.path.join(result_path, "pred_val.txt"), "a") as f:
+                f.write(save_txt)
+        
             # judge early stopping
-            if config["base_train"]["early_stopping"]["flag"] and idx % config["base_train"]["early_stopping"]["steps"] == 0:
-                if len(loss_val) > 1 and loss_val[-1] > loss_val[-2]:
-                    patience_count += 1
-                else:
+            if tr_parms["early_stopping"]["flag"]:
+                if _loss < best_loss:
+                    best_loss = _loss
+                    best_model_state = filter.module.state_dict()
                     patience_count = 0
-                if patience_count >= config["base_train"]["early_stopping"]["patience"]:
-                    flag_stop = True
+                else:
+                    patience_count += 1
+                
+                if patience_count >= tr_parms["early_stopping"]["patience"]:
                     print("early stopping")
                     break
-                
-            if idx % 100 == 0:
-                _val_prob = torch.sigmoid(_val_pred).cpu().numpy()
-                acc = accuracy_score(val_label, (_val_prob >= 0.5).astype(int))
-                _loss = loss_func(_val_pred, torch.tensor(val_label).to(device)).item()
-                save_data = [{"data": data, "label": label, "prob": prob.item()} for data, label, prob in zip(val_data, val_label, _val_prob)]
-                save_data = sorted(save_data, key=lambda x: x["prob"], reverse=True)
-                save_txt = f"\n===={step}_acc:{acc}_loss:{_loss}====\n"
-                for d in save_data:
-                    save_txt += f"{int(d['label'])}\t{round(d['prob'], 3)}\t{d['data']}\n"
-                with open(os.path.join(result_path, "pred_val.txt"), "a") as f:
-                    f.write(save_txt)
 
     # save selector
-    torch.save(selector.module.state_dict(), os.path.join(result_path, "selector.pth"))
-    plot_loss(loss_train, loss_val, result_path)
+    if best_model_state is None:
+        torch.save(filter.module.state_dict(), os.path.join(result_path, "filter.pth"))
+    else:
+        torch.save(best_model_state, os.path.join(result_path, "filter.pth"))
 
-
-def plot_loss(loss_train, loss_val, result_path):
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(loss_train, label='train')
-    plt.plot(loss_val, label='val')
-    plt.xlabel("iteration")
-    plt.ylabel("loss")
-    plt.grid(True)
-    plt.legend()
-    plt.savefig(os.path.join(result_path, "loss.png"))
-    plt.close()
+    plot_x_iters(
+        values = {"train": loss_train, "validation": loss_val},
+        save_file_path = os.path.join(result_path, "loss"),
+        save_value_flag = True,
+        title = "loss",
+    )
 
 
 
 if __name__=="__main__":
 
     """
-    nohup python scripts/train/base.py --gold_type "patent" --data_type "情報系" &
-    nohup python scripts/train/base.py --gold_type "atomic" --data_type "none" &
+    nohup python scripts/filter/base.py --device_ids "3" --gold_type patent --patent_domain "情報系" --temperature_tail 1.3 > nohup1.out &
     """
 
     random.seed(42)
-    
-    with open("./settings_filter.json", "r") as f:
-        settings_filter = json.load(f)
-
-    with open("./settings_data.json", "r") as f:
-        settings_data = json.load(f)
-
-    settings = {"filter": settings_filter, "data": settings_data}
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--device_ids", type=str)
     parser.add_argument("--gold_type", type=str)
-    parser.add_argument("--patetn_domain", type=str, default=None)
+    parser.add_argument("--patent_domain", type=str, default=None)
+    parser.add_argument("--temperature_tail", type=float, default=None)
     args = parser.parse_args()
 
-    if config["base_train"]["early_stopping"]["flag"]:
-        save_dir = f"{args.gold_type}/{args.data_type}/es"
-    else:
-        save_dir = f"{args.gold_type}/{args.data_type}/no_es_epoch_{config['base_train']['epochs']}"
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.device_ids
 
-    result_path = os.path.join(config["directories"]["step_1"], save_dir)
+    settings = get_settings("base")
+
+    _temp_dir = f"es" if settings["tr_params"]["early_stopping"]["flag"] else f"epoch_{settings['tr_params']['epochs']}"
+    if args.gold_type == "patent":
+        result_path = os.path.join(settings["result_path"][args.patent_domain]["base"], f"{args.temperature_tail}_{_temp_dir}")
+    elif args.gold_type == "atomic":
+        result_path = os.path.join(settings["result_path"][args.gold_type], _temp_dir)
+
     os.makedirs(result_path)
 
-    with open(os.path.join(result_path, "config.json"), "w") as f:
-        json.dump(config, f, indent=4)
+    with open(os.path.join(result_path, "settings.json"), "w") as f:
+        f.write(json.dumps(settings, indent=4, ensure_ascii=False))
 
-    main(result_path, config, args)
+    main(result_path, settings, args)

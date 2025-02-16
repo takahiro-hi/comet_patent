@@ -3,7 +3,8 @@
         "data": "./data",
         "patent": {
             "gold": "./data/patent/gold",
-            "silver": "./data/patent/silver"
+            "silver": "./data/patent/silver",
+            "eval": "./data/patent/eval"
         },
         "atomic": {
             "gold": "./data/atomic/gold",

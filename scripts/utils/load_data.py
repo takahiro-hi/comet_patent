@@ -9,7 +9,7 @@ def to_input_format(head, tail):
     head = head[:-1] if head[-1] == "。" else head
     tail = tail[:-1] if tail[-1] == "。" else tail
 
-    return [head, tail]
+    return (head, tail)
 
 
 def load_gold(settings_data, data_type, patent_domain=None):
@@ -22,8 +22,9 @@ def load_gold(settings_data, data_type, patent_domain=None):
         ret_data = [to_input_format(d["head"]["content"], d["tail"]["content"]) for d in data]
 
     elif data_type == "atomic":
-        #data_path = os.path.join(settings_data["dir_path"][data_type]["gold"], f"{patent_domain}_ADV.json")
-        assert False, "Not implemented yet."
+        with open(os.path.join(settings_data["dir_path"][data_type]["gold"], "data_after.json"), "r") as f:
+            data = json.load(f)
+        ret_data = [to_input_format(d[0], d[1]) for d in data]
     
     else:
         assert False, "Invalid data_type."
@@ -41,7 +42,9 @@ def load_silver(settings_data, temperature, data_type, patent_domain=None):
         ret_data = [to_input_format(d["head"], tail) for d in data for tail in d["tail"] if len(tail) > 0]
     
     elif data_type == "atomic":
-        assert False, "Not implemented yet."
+        with open(os.path.join(settings_data["dir_path"][data_type]["silver"], "triple.json"), "r") as f:
+            data = json.load(f)
+        ret_data = [to_input_format(d["head"], tail) for d in data for tail in d["tail"] if len(tail) > 0]
 
     else:
         assert False, "Invalid data_type."
@@ -50,11 +53,3 @@ def load_silver(settings_data, temperature, data_type, patent_domain=None):
 
 
 
-
-if __name__ == "__main__":
-
-    with open("./settings_data.json", "r") as f:
-        settings = json.load(f)
-
-    data = load_silver(settings, 1.0, "patent", "情報系")
-    print(data[:10])

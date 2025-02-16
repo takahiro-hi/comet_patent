@@ -19,6 +19,10 @@ _*/
 
 # generated data
 data/patent/silver/*
+data/patent/eval/*
+data/atomic/silver/*
 
 # result
-result/*
+result_*/*
+
+temp.py
