@@ -1,14 +1,13 @@
 {
     "dir_path": {
-        "data": "./data",
+        "atomic": {
+            "gold": "./data/atomic/gold",
+            "silver": "./data/atomic/silver"
+        },
         "patent": {
             "gold": "./data/patent/gold",
             "silver": "./data/patent/silver",
             "eval": "./data/patent/eval"
-        },
-        "atomic": {
-            "gold": "./data/atomic/gold",
-            "silver": "./data/atomic/silver"
         }
     },
 

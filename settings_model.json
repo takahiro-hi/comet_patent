@@ -1,48 +1,37 @@
 {
-    "result_path": {
-        "情報系": {
-            "base": "./result_情報系/filter_base",
-            "adv": "./result_情報系/filter_adv",
-            "comet": "./result_情報系/comet"
-        },
-        "化学系": {
-            "base": "./result_化学系/filter_base",
-            "adv": "./result_化学系/filter_adv",
-            "comet": "./result_化学系/comet"
-        },
-        "atomic": "./result_atomic"
-    },
+    "result_path": "./result_{}_t_{}",
 
     "params_base": {
         "model_name": "tohoku-nlp/bert-base-japanese",
-        "learning_rate": 2e-5,
+        "learning_rate": 5e-6,
         "weight_decay": 0.01,
         "early_stopping": {
-            "flag": true,
+            "flag": false,
             "patience": 5
         },
         "epochs": 20,
         "batch_size": 32,
-        "eval_steps": 1
+        "eval_steps": 1,
+        "augmentation_patent_ratio": 0.2
     },
 
     "params_adv": {
         "model_name": "tohoku-nlp/bert-base-japanese",
         "iterations": 200,
-        "switch": {
-            "flag": true,
-            "end_iters": 150,
-            "start_ratio": 0.05
+        "augmentation": {
+            "flag": false,
+            "end_iters": 175,
+            "start_ratio": 0.2
         },
         "selector": {
-            "learning_rate": 2e-5,
+            "learning_rate": 5e-6,
             "weight_decay": 0.01,
             "steps": 3,
             "batch_size": 32,
             "select_num": 500
         },
         "discriminator": {
-            "learning_rate": 2e-5,
+            "learning_rate": 5e-6,
             "weight_decay": 0.01,
             "hinge_loss": {
                 "start_iters": 125,
@@ -55,7 +44,7 @@
             "sample_from_silver": {
                 "start_thresh": 0.2,
                 "end_thresh": 0.7,
-                "end_iters": 150,
+                "end_iters": 175,
                 "steps_random": 2
             }
         }

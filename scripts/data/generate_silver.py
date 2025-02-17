@@ -72,7 +72,7 @@ def main(settings, args):
 
 if __name__ == "__main__":
     """
-    nohup python scripts/data_patent/generate_silver.py --device_id "2, 3" --temperature_tail 1.3 --gold_type patent --patent_domain 情報系 &
+    nohup python scripts/data/generate_silver.py --device_id "2, 3" --temperature_tail 1.3 --gold_type patent --patent_domain 情報系 &
     """
 
     parser = argparse.ArgumentParser()

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from transformers import BertJapaneseTokenizer
 
-from utils import tokenize_data
+from utils import tokenize_data, plot_x_iters
 
 sys.path.append("./scripts/utils")
 from load_data import load_gold, load_silver
@@ -13,8 +13,8 @@ from load_data import load_gold, load_silver
 
 def get_val_patent(args, settings):
 
-    pos = load_gold(settings["data"], "patent", args.patent_domain)
-    neg = load_silver(settings["data"], args.temperature_tail, "patent", args.patent_domain)
+    pos = load_gold(settings["data"], "patent", args.patent_domain, True)
+    neg = load_silver(settings["data"], "patent", args.temperature_tail, args.patent_domain, True)
 
     print(f"patent_domain: {args.patent_domain}")
     print(f"pos: {len(pos)}, neg: {len(neg)}")
@@ -46,24 +46,24 @@ class DataLoader:
 
         # load dataset
         self.gold_data_dict = {
-            "patent": load_gold(self.settings["data"], "patent", args.patent_domain),
-            "atomic": load_gold(self.settings["data"], "atomic"),
+            "patent": load_gold(self.settings["data"], "patent", args.patent_domain, True),
+            "atomic": load_gold(self.settings["data"], "atomic", None, True),
             "mark_idx": {
                 "patent": 0,
                 "atomic": 0
             }
         }
         self.silver_data_dict = {
-            "patent": load_silver(self.settings["data"], self.args.temperature_tail, "patent", args.patent_domain),
-            "atomic": load_silver(self.settings["data"], None, "atomic"),
+            "patent": load_silver(self.settings["data"], "patent", self.args.temperature_tail, args.patent_domain, True),
+            "atomic": load_silver(self.settings["data"], "atomic", None, None, True),
             "mark_idx": {
                 "patent": 0,
                 "atomic": 0
             }
         }
-        for _type in ["patent", "atomic"]:
-            random.shuffle(self.gold_data_dict[_type])
-            random.shuffle(self.silver_data_dict[_type])
+        for _data_type in ["patent", "atomic"]:
+            random.shuffle(self.gold_data_dict[_data_type])
+            random.shuffle(self.silver_data_dict[_data_type])
         self.val_patent_data, self.val_patent_label = get_val_patent(args, settings)
         self.val_patent_inps = tokenize_data(self.val_patent_data, self.tokenizer)
 
@@ -74,12 +74,12 @@ class DataLoader:
 
     def get_patent_data_ratio(self):
 
-        if self.tr_params["switch"]["flag"]:
+        if self.tr_params["augmentation"]["flag"]:
             ret_list = {"iteration": [], "ratio": []}
             for i in range(self.tr_params["iterations"]):
                 ret_list["iteration"].append(i)
-                if i < self.tr_params["switch"]["end_iters"]:
-                    ret_list["ratio"].append(self.tr_params["switch"]["start_ratio"] + (1.0 - self.tr_params["switch"]["start_ratio"]) * i / self.tr_params["switch"]["end_iters"])
+                if i < self.tr_params["augmentation"]["end_iters"]:
+                    ret_list["ratio"].append(self.tr_params["augmentation"]["start_ratio"] + (1.0 - self.tr_params["augmentation"]["start_ratio"]) * i / self.tr_params["augmentation"]["end_iters"])
                 else:
                     ret_list["ratio"].append(1.0)
         else:
@@ -89,8 +89,8 @@ class DataLoader:
             }
 
         return ret_list
-    
-    
+
+
     def random_sampling_from_gold(self, num, gold_type, flag_tokenize=True):
 
         data_list = self.gold_data_dict[gold_type]
@@ -108,18 +108,18 @@ class DataLoader:
             return selected_data
     
 
-    def random_sampling_from_silver(self, num, silver_type, flag_permutation, flag_tokenize):
+    def random_sampling_from_silver(self, num, data_type, flag_permutation, flag_tokenize):
 
-        data_list = self.silver_data_dict[silver_type]
+        data_list = self.silver_data_dict[data_type]
 
         if flag_permutation:    # 順番に取り出す
-            ret_data = data_list[self.silver_data_dict["mark_idx"][silver_type]:self.silver_data_dict["mark_idx"][silver_type] + num]
-            self.silver_data_dict["mark_idx"][silver_type] += num
+            ret_data = data_list[self.silver_data_dict["mark_idx"][data_type]:self.silver_data_dict["mark_idx"][data_type] + num]
+            self.silver_data_dict["mark_idx"][data_type] += num
 
-            if self.silver_data_dict["mark_idx"][silver_type] >= len(data_list):
-                self.silver_data_dict["mark_idx"][silver_type] = num - len(ret_data)
+            if self.silver_data_dict["mark_idx"][data_type] >= len(data_list):
+                self.silver_data_dict["mark_idx"][data_type] = num - len(ret_data)
                 random.shuffle(data_list)
-                ret_data += data_list[:self.silver_data_dict["mark_idx"][silver_type]]
+                ret_data += data_list[:self.silver_data_dict["mark_idx"][data_type]]
         
         else:   # 全体からランダムに取り出す
             ret_data = random.sample(data_list, num)
@@ -130,7 +130,7 @@ class DataLoader:
             return ret_data
 
 
-    def get_mixed_data(self, gold_silver, iteration, num, flag_permutation):
+    def get_augmented_data(self, gold_silver, iteration, num, flag_permutation, flag_tokenize):
 
         num_patent = int(num * self.patent_data_ratio["ratio"][iteration-1])
         num_atomic = num - num_patent
@@ -138,17 +138,17 @@ class DataLoader:
         if gold_silver == "gold":
             _data_patent = self.random_sampling_from_gold(num_patent, "patent", False)
             _data_atomic = self.random_sampling_from_gold(num_atomic, "atomic", False)
-            data = _data_patent + _data_atomic
-            inps = tokenize_data(data, self.tokenizer)
+        
         elif gold_silver == "silver":
             _data_patent = self.random_sampling_from_silver(num_patent, "patent", flag_permutation, False)
             _data_atomic = self.random_sampling_from_silver(num_atomic, "atomic", flag_permutation, False)
-            data = _data_patent + _data_atomic
-            inps = tokenize_data(data, self.tokenizer)
+        
+        data = _data_patent + _data_atomic
+
+        if flag_tokenize:
+            return data, tokenize_data(data, self.tokenizer)
         else:
-            raise ValueError("invalid gold_silver value")
-    
-        return data, inps
+            return data
         
     
     def sampling_to_train_selector(self, discriminator, iteration):
@@ -159,7 +159,7 @@ class DataLoader:
         remaining_samples = {0.: self.tr_params["selector"]["batch_size"]//2, 1.: self.tr_params["selector"]["batch_size"]//2}
 
         for _ in range(max_attempt):
-            data, inps = self.get_mixed_data("silver", iteration, self.tr_params["selector"]["select_num"], False)
+            data, inps = self.get_augmented_data("silver", iteration, self.tr_params["selector"]["select_num"], False, True)
             with torch.no_grad():
                 ans_logit = discriminator(**inps.to("cuda")).squeeze(-1)
                 ans_prob = torch.sigmoid(ans_logit)
@@ -185,7 +185,7 @@ class DataLoader:
     def sampling_to_train_discriminator(self, selector, iteration, step):
 
         params_d = self.tr_params["discriminator"]
-        data_gold, inps_gold = self.get_mixed_data("gold", iteration, params_d["batch_size"]//2, True)
+        data_gold = self.get_augmented_data("gold", iteration, params_d["batch_size"]//2, True, False)
 
         if iteration < params_d["sample_from_silver"]["end_iters"]:
             lower = params_d["sample_from_silver"]["start_thresh"] + iteration * (params_d["sample_from_silver"]["end_thresh"] - params_d["sample_from_silver"]["start_thresh"]) / params_d["sample_from_silver"]["end_iters"]
@@ -193,11 +193,11 @@ class DataLoader:
             lower = params_d["sample_from_silver"]["end_thresh"]
         
         if iteration % params_d["sample_from_silver"]["steps_random"] == 0 and step == 1:
-            data_silver, inps_silver = self.get_mixed_data("silver", iteration, params_d["batch_size"]//2, True)
+            data_silver = self.get_augmented_data("silver", iteration, params_d["batch_size"]//2, True, False)
             _temp_thread = lower
 
         else:
-            data_silver_large, inp_silver = self.get_mixed_data("silver", iteration, params_d["select_num"], True)
+            data_silver_large, inp_silver = self.get_augmented_data("silver", iteration, params_d["select_num"], True, True)
             with torch.no_grad():
                 pre_logits_s = selector(**inp_silver.to("cuda")).squeeze(-1)
                 pre_prob_s = torch.sigmoid(pre_logits_s)
@@ -219,15 +219,3 @@ class DataLoader:
 
         ret_data = data_gold + data_silver
         return ret_data, tokenize_data(ret_data, self.tokenizer), [1.] * len(data_gold) + [0.] * len(data_silver)
-
-
-    def plot_gold_ratio(self):
-
-        plt.figure()
-        plt.plot(self.patent_data_ratio)
-        plt.xlabel("iteration", fontsize=13)
-        plt.ylabel("patent data ratio", fontsize=13)
-        plt.grid(True)
-        plt.savefig(os.path.join(self.result_path, "patent_data_ratio.png"))
-        plt.close()
-        

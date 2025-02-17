@@ -199,18 +199,3 @@ def _rearrange_image(image_list, save_file_path):
         new_image.paste(img, (i*widths, 0))
     
     new_image.save(save_file_path)
-
-
-
-
-
-if __name__ == "__main__":
-
-    with open("./settings_data.json", "r") as f:
-        settings_data = json.load(f)
-    
-    a = {"accuracy": 0.8, "precision": 0.9, "recall": 0.7, "f1": 0.8}
-    b = {"accuracy": 0.7, "precision": 0.8, "recall": 0.6, "f1": 0.7}
-
-    _plot_metrics(a, b, "test", "./test.png")
-    _rearrange_image(["./test.png" for _ in range(3)], "./test2.png")

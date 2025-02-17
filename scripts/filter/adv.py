@@ -44,8 +44,8 @@ class SymbolicKDUsingAdversarialNet():
         self.loss_d_tr, self.loss_s_tr = {"iteration":[], "loss":[]}, {"iteration":[], "loss":[]}
         self.val_patent = {
             "iteration":[], 
-            "selector": {"loss":[], "acc":[], "precision":[], "recall":[], "f1":[]},
-            "discriminator": {"loss":[], "acc":[], "precision":[], "recall":[], "f1":[]}
+            "selector": { "acc":[], "precision":[], "recall":[], "f1":[]},
+            "discriminator": {"acc":[], "precision":[], "recall":[], "f1":[]}
         }
 
 
@@ -55,10 +55,10 @@ class SymbolicKDUsingAdversarialNet():
             filter = Classifier(self.tr_params["model_name"]).to("cuda")
         
         elif self.args.init_filter == "1":
-            if self.tr_params["switch"]["flag"]:
-                model_path = os.path.join(self.settings["result_path"]["atomic"], "es/filter.pth")
+            if self.tr_params["augmentation"]["flag"]:
+                model_path = os.path.join(self.settings["result_path"].format(self.args.patent_domain, self.args.temperature_tail), f"filter_base/augmentation_es/filter.pth")
             else:
-                model_path = os.path.join(self.settings["result_path"][self.args.patent_domain], f"{self.args.temperature_tail}_es/filter.pth")
+                model_path = os.path.join(self.settings["result_path"].format(self.args.patent_domain, self.args.temperature_tail), "filter_base/no_augmentation_es/filter.pth")
             state_dict = torch.load(model_path, map_location="cuda", weights_only=True)
             filter = Classifier(self.tr_params["model_name"]).to("cuda")
             filter.load_state_dict(state_dict)
@@ -68,16 +68,12 @@ class SymbolicKDUsingAdversarialNet():
 
     def train_gan(self):
         
-        for iteration in tqdm(range(1, 1+self.tr_params["iterations"]), desc="training"):
-
-            if self.tr_params["switch"]["flag"] and iteration == self.tr_params["switch"]["end_iters"]:
-                plot_patent_metrics(self.val_patent, "selector", os.path.join(self.result_path, "patent_metrics_selector.png"))
-                plot_patent_metrics(self.val_patent, "discriminator", os.path.join(self.result_path, "patent_metrics_discriminator.png"))
+        for iteration in tqdm(range(1, 1+self.tr_params["iterations"]), desc="training"):                
 
             _temp_loss_s, _temp_loss_d = [], []
             
             # validate patent
-            if self.tr_params["switch"]["flag"] and iteration%10==1 and iteration < self.tr_params["switch"]["end_iters"]:
+            if iteration%10==1:
                 self.validate_patent(iteration)
 
             # train selector
@@ -85,16 +81,14 @@ class SymbolicKDUsingAdversarialNet():
                 loss_s = self.train_selector(iteration, step)
                 if loss_s is not None:
                     _temp_loss_s.append(loss_s.item())
+            if len(_temp_loss_s) != 0:
+                self.loss_s_tr["iteration"].append(iteration)
+                self.loss_s_tr["loss"].append(sum(_temp_loss_s)/len(_temp_loss_s))
 
             # train discriminator
             for step in range(1, self.tr_params["discriminator"]["steps"]+1):
                 loss_d = self.train_discriminator(iteration, step)
                 _temp_loss_d.append(loss_d.item())
-
-            # save loss
-            if len(_temp_loss_s) != 0:
-                self.loss_s_tr["iteration"].append(iteration)
-                self.loss_s_tr["loss"].append(sum(_temp_loss_s)/len(_temp_loss_s))
             self.loss_d_tr["iteration"].append(iteration)
             self.loss_d_tr["loss"].append(sum(_temp_loss_d)/len(_temp_loss_d))
 
@@ -184,7 +178,6 @@ class SymbolicKDUsingAdversarialNet():
             pred_label = prob.cpu().numpy() > 0.5
             loss = self.loss_func_s(pre, torch.tensor(label).to("cuda"))
 
-            self.val_patent[model_name]["loss"].append(loss.item())
             self.val_patent[model_name]["acc"].append(accuracy_score(label, pred_label))
             self.val_patent[model_name]["precision"].append(precision_score(label, pred_label, zero_division=0))
             self.val_patent[model_name]["recall"].append(recall_score(label, pred_label, zero_division=0))
@@ -216,10 +209,13 @@ class SymbolicKDUsingAdversarialNet():
             title = title
         )
 
-    
+        plot_patent_metrics(self.val_patent, "selector", os.path.join(self.result_path, "patent_metrics_selector.png"))
+        plot_patent_metrics(self.val_patent, "discriminator", os.path.join(self.result_path, "patent_metrics_discriminator.png"))
+
+
     def test(self):
 
-        model_path = os.path.join(self.settings["result_path"][self.args.patent_domain]["base"], f"{self.args.temperature_tail}_es/filter.pth")
+        model_path = os.path.join(self.settings["result_path"].format(self.args.patent_domain, self.args.temperature_tail), f"filter_base/no_augmentation_es/filter.pth")
         state_dict = torch.load(model_path, map_location="cuda", weights_only=True)
         base_model = Classifier(self.tr_params["model_name"]).to("cuda")
         base_model.load_state_dict(state_dict)
@@ -242,16 +238,16 @@ def main(result_path, settings, args):
 if __name__=="__main__":
 
     """
-    python scripts/filter/adv.py --no "no1" --patent_domain "情報系" --device_ids "2, 3" --init_filter "1" --temperature_tail 1.3
+    python scripts/filter/adv.py --no "no1" --device_ids "3" --init_filter "1" --patent_domain "情報系" --temperature_tail 1.3
     """
 
     random.seed(42)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--no", type=str)
-    parser.add_argument("--patent_domain", type=str)
     parser.add_argument("--device_ids", type=str)
     parser.add_argument("--init_filter", type=str)    # 0: use pretrained model, 1: use base model
+    parser.add_argument("--patent_domain", type=str)
     parser.add_argument("--temperature_tail", type=float, default=None)
     args = parser.parse_args()
 
@@ -259,10 +255,10 @@ if __name__=="__main__":
 
     settings = get_settings("adv")
 
-    if settings["tr_params"]["switch"]["flag"]:
-        result_path = os.path.join(settings["result_path"][args.patent_domain]["adv"], f"t_{args.temperature_tail}_switch/init_{args.init_filter}_{args.no}")
+    if settings["tr_params"]["augmentation"]["flag"]:
+        result_path = os.path.join(settings["result_path"].format(args.patent_domain, args.temperature_tail), f"filter_adv/augmentation/init_{args.init_filter}_{args.no}")
     else:
-        result_path = os.path.join(settings["result_path"][args.patent_domain]["adv"], f"t_{args.temperature_tail}_no_switch/init_{args.init_filter}_{args.no}")
+        result_path = os.path.join(settings["result_path"].format(args.patent_domain, args.temperature_tail), f"filter_adv/no_augmentation/init_{args.init_filter}_{args.no}")
     os.makedirs(result_path)
     
     with open(os.path.join(result_path, "settings.json"), "w") as f:

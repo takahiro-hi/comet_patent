@@ -16,15 +16,25 @@ from load_data import load_gold, load_silver
 
 def get_train_data(args, settings):
 
-    pos = load_gold(settings["data"], args.gold_type, args.patent_domain)
-    neg = load_silver(settings["data"], args.temperature_tail, args.gold_type, args.patent_domain)
+    pos_patent = load_gold(settings["data"], "patent", args.patent_domain, True)
+    neg_patent = load_silver(settings["data"], "patent", args.temperature_tail, args.patent_domain, True)
+    
+    if args.augmentation:
+        pos_atomic = load_gold(settings["data"], "atomic", None, True)
+        neg_atomic = load_silver(settings["data"], "atomic", None, None, True)
 
-    print(f"gold type: {args.gold_type}, patent_domain: {args.patent_domain}")
-    print(f"pos: {len(pos)}, neg: {len(neg)}")
+        num_patent = len(pos_patent)
+        num_atomic = num_patent * ((1 - settings["tr_params"]["augmentation_patent_ratio"]) / settings["tr_params"]["augmentation_patent_ratio"])
+        assert num_atomic <= len(pos_atomic), "somethig wrong with the data"
+        pos = pos_patent + pos_atomic[:int(num_atomic)]
+        neg = neg_patent[:num_patent] + neg_atomic[:int(num_atomic)]
+        print(f"augmentation: patent {num_patent}, atomic {int(num_atomic)}, pos {len(pos)}, neg {len(neg)}")
+    
+    else:
+        pos = pos_patent
+        neg = neg_patent[:len(pos)]
+        print(f"no augmentation: pos {len(pos)}, neg {len(neg)}")
 
-    assert len(pos) < len(neg), "somethig wrong with the data"
-
-    neg = random.sample(neg, len(pos))
     data = pos + neg
     label = [1.] * len(pos) + [0.] * len(neg)
 
@@ -128,27 +138,27 @@ def main(result_path, settings, args):
 if __name__=="__main__":
 
     """
-    nohup python scripts/filter/base.py --device_ids "3" --gold_type patent --patent_domain "情報系" --temperature_tail 1.3 > nohup1.out &
+    python scripts/filter/base.py --device_ids "3" --patent_domain "情報系" --temperature_tail 1.3 --augmentation
     """
 
     random.seed(42)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--device_ids", type=str)
-    parser.add_argument("--gold_type", type=str)
     parser.add_argument("--patent_domain", type=str, default=None)
     parser.add_argument("--temperature_tail", type=float, default=None)
+    parser.add_argument("--augmentation", action="store_true")
     args = parser.parse_args()
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.device_ids
 
     settings = get_settings("base")
 
-    _temp_dir = f"es" if settings["tr_params"]["early_stopping"]["flag"] else f"epoch_{settings['tr_params']['epochs']}"
-    if args.gold_type == "patent":
-        result_path = os.path.join(settings["result_path"][args.patent_domain]["base"], f"{args.temperature_tail}_{_temp_dir}")
-    elif args.gold_type == "atomic":
-        result_path = os.path.join(settings["result_path"][args.gold_type], _temp_dir)
+    if args.augmentation:
+        _temp_dir = f"filter_base/augmentation_es" if settings["tr_params"]["early_stopping"]["flag"] else f"filter_base/augmentation_epoch_{settings['tr_params']['epochs']}"
+    else:
+        _temp_dir = f"filter_base/no_augmentation_es" if settings["tr_params"]["early_stopping"]["flag"] else f"filter_base/no_augmentation_epoch_{settings['tr_params']['epochs']}"
+    result_path = os.path.join(settings["result_path"].format(args.patent_domain, args.temperature_tail), _temp_dir)
 
     os.makedirs(result_path)
 
