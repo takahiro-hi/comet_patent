@@ -187,10 +187,19 @@ class DataLoader:
         params_d = self.tr_params["discriminator"]
         data_gold = self.get_augmented_data("gold", iteration, params_d["batch_size"]//2, True, False)
 
-        if iteration < params_d["sample_from_silver"]["end_iters"]:
+        """if iteration < params_d["sample_from_silver"]["end_iters"]:
             lower = params_d["sample_from_silver"]["start_thresh"] + iteration * (params_d["sample_from_silver"]["end_thresh"] - params_d["sample_from_silver"]["start_thresh"]) / params_d["sample_from_silver"]["end_iters"]
         else:
-            lower = params_d["sample_from_silver"]["end_thresh"]
+            lower = params_d["sample_from_silver"]["end_thresh"]"""
+        loc_1 = self.tr_params["iterations"] // 2
+        loc_2 = self.tr_params["iterations"] * (3 / 4)
+        if iteration < loc_1:
+            lower = 0.1
+        elif iteration < loc_2:
+            #lower = (iteration - 100) * ((0.5 - 0.1) / 75) + 0.1
+            lower = 0.1 + (iteration - loc_1) * (0.5 - 0.1) / (loc_2 - loc_1)
+        else:
+            lower = 0.5
         
         if iteration % params_d["sample_from_silver"]["steps_random"] == 0 and step == 1:
             data_silver = self.get_augmented_data("silver", iteration, params_d["batch_size"]//2, True, False)

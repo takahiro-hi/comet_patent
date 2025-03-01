@@ -1,15 +1,18 @@
-import torch, os, json, random, argparse
+import torch, os, json, random, argparse, sys
 import torch.nn as nn
 import torch.optim as optim
 
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-from utils import get_settings, plot_patent_metrics, plot_x_iters, test_adv_base
+from utils import plot_patent_metrics, plot_x_iters, test_adv_base
 
 from loss_func import LossFuncForDiscriminator
 from dataloader import DataLoader
 from model import Classifier
+
+sys.path.append("./scripts/utils")
+from load_data import get_settings
 
 
 
@@ -56,9 +59,9 @@ class SymbolicKDUsingAdversarialNet():
         
         elif self.args.init_filter == "1":
             if self.tr_params["augmentation"]["flag"]:
-                model_path = os.path.join(self.settings["result_path"].format(self.args.patent_domain, self.args.temperature_tail), f"filter_base/augmentation_es/filter.pth")
+                model_path = os.path.join(self.settings["result_path"][self.args.patent_domain], f"filter_base_t_{self.args.temperature_tail}/augmentation_es/filter.pth")
             else:
-                model_path = os.path.join(self.settings["result_path"].format(self.args.patent_domain, self.args.temperature_tail), "filter_base/no_augmentation_es/filter.pth")
+                model_path = os.path.join(self.settings["result_path"][self.args.patent_domain], f"filter_base_t_{self.args.temperature_tail}/no_augmentation_es/filter.pth")
             state_dict = torch.load(model_path, map_location="cuda", weights_only=True)
             filter = Classifier(self.tr_params["model_name"]).to("cuda")
             filter.load_state_dict(state_dict)
@@ -238,7 +241,7 @@ def main(result_path, settings, args):
 if __name__=="__main__":
 
     """
-    python scripts/filter/adv.py --no "no1" --device_ids "3" --init_filter "1" --patent_domain "情報系" --temperature_tail 1.3
+    nohup python scripts/filter/adv.py --no "no3" --device_ids "0" --init_filter "1" --patent_domain "情報系" --temperature_tail 1.3 > nohup1.out &
     """
 
     random.seed(42)
@@ -256,9 +259,9 @@ if __name__=="__main__":
     settings = get_settings("adv")
 
     if settings["tr_params"]["augmentation"]["flag"]:
-        result_path = os.path.join(settings["result_path"].format(args.patent_domain, args.temperature_tail), f"filter_adv/augmentation/init_{args.init_filter}_{args.no}")
+        result_path = os.path.join(settings["result_path"][args.patent_domain], f"filter_adv_t_{args.temperature_tail}/augmentation/init_{args.init_filter}_{args.no}")
     else:
-        result_path = os.path.join(settings["result_path"].format(args.patent_domain, args.temperature_tail), f"filter_adv/no_augmentation/init_{args.init_filter}_{args.no}")
+        result_path = os.path.join(settings["result_path"][args.patent_domain], f"filter_adv_t_{args.temperature_tail}/no_augmentation/init_{args.init_filter}_{args.no}")
     os.makedirs(result_path)
     
     with open(os.path.join(result_path, "settings.json"), "w") as f:

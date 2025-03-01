@@ -1,5 +1,8 @@
 {
-    "result_path": "./result_{}_t_{}",
+    "result_path": {
+        "情報系": "./result_情報系",
+        "化学系": "./result_化学系"
+    },
 
     "params_base": {
         "model_name": "tohoku-nlp/bert-base-japanese",
@@ -17,10 +20,10 @@
 
     "params_adv": {
         "model_name": "tohoku-nlp/bert-base-japanese",
-        "iterations": 200,
+        "iterations": 100,
         "augmentation": {
-            "flag": false,
-            "end_iters": 175,
+            "flag": true,
+            "end_iters": 80,
             "start_ratio": 0.2
         },
         "selector": {
@@ -34,8 +37,8 @@
             "learning_rate": 5e-6,
             "weight_decay": 0.01,
             "hinge_loss": {
-                "start_iters": 125,
-                "end_iters": 175,
+                "start_iters": 50,
+                "end_iters": 80,
                 "max_weight": 0.3
             },
             "steps": 4,
@@ -44,7 +47,7 @@
             "sample_from_silver": {
                 "start_thresh": 0.2,
                 "end_thresh": 0.7,
-                "end_iters": 175,
+                "end_iters": 80,
                 "steps_random": 2
             }
         }
@@ -57,6 +60,6 @@
         "per_device_eval_batch_size": 16,
         "learning_rate": 2e-5,
         "weight_decay": 0.01,
-        "num_train_epochs": 3
+        "num_train_epochs": 1
     }
 }

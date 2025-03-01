@@ -7,10 +7,10 @@ import torch.nn as nn
 import torch.optim as optim
 
 from model import Classifier
-from utils import tokenize_data, plot_x_iters, get_settings
+from utils import tokenize_data, plot_x_iters
 
 sys.path.append("./scripts/utils")
-from load_data import load_gold, load_silver
+from load_data import load_gold, load_silver, get_settings
 
 
 
@@ -155,10 +155,10 @@ if __name__=="__main__":
     settings = get_settings("base")
 
     if args.augmentation:
-        _temp_dir = f"filter_base/augmentation_es" if settings["tr_params"]["early_stopping"]["flag"] else f"filter_base/augmentation_epoch_{settings['tr_params']['epochs']}"
+        _temp_dir = f"filter_base_t_{args.temperature_tail}/augmentation_es" if settings["tr_params"]["early_stopping"]["flag"] else f"filter_base_t_{args.temperature_tail}/augmentation_epoch_{settings['tr_params']['epochs']}"
     else:
         _temp_dir = f"filter_base/no_augmentation_es" if settings["tr_params"]["early_stopping"]["flag"] else f"filter_base/no_augmentation_epoch_{settings['tr_params']['epochs']}"
-    result_path = os.path.join(settings["result_path"].format(args.patent_domain, args.temperature_tail), _temp_dir)
+    result_path = os.path.join(settings["result_path"][args.patent_domain], _temp_dir)
 
     os.makedirs(result_path)
 

@@ -56,3 +56,20 @@ def load_silver(settings_data, data_type, temperature, patent_domain, shuffle):
 
 
 
+def get_settings(filter_type):
+
+    with open("./settings_data.json", "r") as f:
+        settings_data = json.load(f)
+    with open("./settings_model.json", "r") as f:
+        settings_model = json.load(f)
+    
+    assert filter_type in ["base", "adv", "comet"], "invalid filter_type"
+    assert settings_model["params_base"]["model_name"] == settings_model["params_adv"]["model_name"], "model_name is not matched"
+    
+    settings = {
+        "data": settings_data,
+        "result_path": settings_model["result_path"],
+        "tr_params": settings_model[f"params_{filter_type}"]
+    }
+
+    return settings

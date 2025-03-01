@@ -638,17 +638,6 @@
         }
     },
     {
-        "relation": "PENDING",
-        "head": {
-            "type": "method",
-            "content": "１分子内にＴＡＩＣまたはアリルグリコールウリルのような構造による共架橋剤機能とチオウレアのような構造による加硫促進剤機能を合わせ持つ"
-        },
-        "tail": {
-            "type": "effect",
-            "content": "より優れたゴム性能を発現する"
-        }
-    },
-    {
         "relation": "ADV",
         "head": {
             "type": "method",
@@ -657,6 +646,50 @@
         "tail": {
             "type": "effect",
             "content": "良好な伸度特性及び引裂強度を与える"
+        }
+    },
+    {
+        "relation": "EQU",
+        "head": {
+            "type": "method",
+            "content": "適切な架橋剤により架橋する"
+        },
+        "tail": {
+            "type": "method",
+            "content": "硫黄架橋においては、チオウレア系、チウラム系、チアゾール系、スルフェンアミド系などの化合物が加硫促進剤として使用され"
+        }
+    },
+    {
+        "relation": "EQU",
+        "head": {
+            "type": "method",
+            "content": "適切な架橋剤により架橋する"
+        },
+        "tail": {
+            "type": "method",
+            "content": "有機過酸化物架橋においては、トリアリルイソシアヌレート（ＴＡＩＣ）などの化合物が共架橋剤として使用され"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "effect",
+            "content": "化学構造に特徴を持たせたチオウレア系加硫促進剤により、腐食性や表面のべたつきが低減され、高発泡かつ柔軟性に優れるＥＰＤＭ発泡体（特許文献１）や適度な硬度を有し"
+        },
+        "tail": {
+            "type": "effect",
+            "content": "反発性が高く高品質な架橋生成物（特許文献２）や高いグリップ性能を示す"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "１分子内にＴＡＩＣまたはアリルグリコールウリルのような構造による共架橋剤機能とチオウレアのような構造による加硫促進剤機能を合わせ持つことで、より優れたゴム性能を発現する架橋助剤は見出されていない"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "良好な伸度特性及び引裂強度を発現し、加硫促進剤かつ共架橋剤として併用可能な架橋助剤及びそれを含む熱架橋用樹脂組成物並びにそれから得られる成形体を提供する"
         }
     },
     {
@@ -2068,6 +2101,215 @@
         }
     },
     {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "食器洗い機用液体洗浄剤組成物の抑泡性が不充分である"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "食器洗い機の運転中に泡が溢れ出る"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "食器洗い機用液体洗浄剤組成物の抑泡性が不充分である"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "循環する水の中に泡が絡むことによって充分な噴射力が得られない"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "循環する水の中に泡が絡む"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "充分な噴射力が得られない"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "食器洗い機用液体洗浄剤組成物において"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "循環する水の中に泡が絡む"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "食器洗い機用液体洗浄剤組成物において"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "泡立ちを抑える効果（抑泡性）が求められる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "食器洗い機用液体洗浄剤組成物の抑泡性が不充分であると、食器洗い機の運転中に泡が溢れ出る「オーバーフロー」と呼ばれる現象や、循環する水の中に泡が絡むことによって充分な噴射力が得られない「エア噛み」と呼ばれる現象が起きる"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "泡立ちを抑える効果（抑泡性）が求められる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "食器洗い機の運転中に泡が溢れ出る「オーバーフロー」と呼ばれる現象や、循環する水の中に泡が絡むことによって充分な噴射力が得られない「エア噛み」と呼ばれる現象が起きる"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "食器洗い機が異常停止したり、故障したりするおそれがある"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "食器洗い機が異常停止したり、故障したりするおそれがある"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "泡立ちを抑える効果（抑泡性）が求められる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "食器洗い機用液体洗浄剤組成物の抑泡性が不充分であると、食器洗い機の運転中に泡が溢れ出る「オーバーフロー」と呼ばれる現象や、循環する水の中に泡が絡むことによって充分な噴射力が得られない「エア噛み」と呼ばれる現象が起きる"
+        },
+        "tail": {
+            "type": "method",
+            "content": "低起泡性の界面活性剤として、オキシプロピレン基を有するポリオキシアルキレンアルキルエーテル型の非イオン界面活性剤が汎用されている"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "食器洗い機用液体洗浄剤組成物の抑泡性が不充分であると、食器洗い機の運転中に泡が溢れ出る「オーバーフロー」と呼ばれる現象や、循環する水の中に泡が絡むことによって充分な噴射力が得られない「エア噛み」と呼ばれる現象が起きる"
+        },
+        "tail": {
+            "type": "method",
+            "content": "泡抑制剤としてシリコーン化合物と特定の短鎖（炭素数６〜１０）アルキルアミン界面活性剤との組合せを採用し"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "食器洗い機用液体洗浄剤組成物には"
+        },
+        "tail": {
+            "type": "method",
+            "content": "低起泡性の界面活性剤として、オキシプロピレン基を有するポリオキシアルキレンアルキルエーテル型の非イオン界面活性剤が汎用されている"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "食器洗い機用液体洗浄剤組成物には"
+        },
+        "tail": {
+            "type": "method",
+            "content": "泡抑制剤としてシリコーン化合物と特定の短鎖（炭素数６〜１０）アルキルアミン界面活性剤との組合せを採用し"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "purpose",
+            "content": "抑泡性に優れ、さらに食器類に卵の固着したタンパク汚れに対し、優れた洗浄力を有する食器洗い機用洗浄剤組成物を提供する"
+        },
+        "tail": {
+            "type": "method",
+            "content": "卵の固着タンパクに対する高い洗浄力を有するアルキルベンゼンスルホン酸塩と長鎖（アシル基の炭素数１０以上）のアミドアミン化合物、及びキレート剤、シリコーン化合物を選択する"
+        }
+    },
+    {
+        "relation": "EQU",
+        "head": {
+            "type": "method",
+            "content": "卵の固着タンパクに対する高い洗浄力を有するアルキルベンゼンスルホン酸塩と長鎖（アシル基の炭素数１０以上）のアミドアミン化合物、及びキレート剤、シリコーン化合物を選択する"
+        },
+        "tail": {
+            "type": "method",
+            "content": "本発明の食器洗い機用洗浄剤は、（ａ）成分：下記一般式（ａ−１）で表される化合物と、（ｂ）成分：アルキルベンゼンスルホン酸塩と、（ｃ）成分：キレート剤を酸換算で８質量％以上と、（ｄ）シリコーン化合物を含有する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "卵の固着タンパクに対する高い洗浄力を有するアルキルベンゼンスルホン酸塩と長鎖（アシル基の炭素数１０以上）のアミドアミン化合物、及びキレート剤、シリコーン化合物を選択する"
+        },
+        "tail": {
+            "type": "user_effect",
+            "content": "低泡性を確保しつつ、卵の固着したタンパク汚れに対して優れた洗浄力を有する食器洗い機用洗浄剤を提供することができる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "食器洗い機用液体洗浄剤組成物の抑泡性が不充分であると、食器洗い機の運転中に泡が溢れ出る「オーバーフロー」と呼ばれる現象や、循環する水の中に泡が絡むことによって充分な噴射力が得られない「エア噛み」と呼ばれる現象が起きる"
+        },
+        "tail": {
+            "type": "method",
+            "content": "卵の固着タンパクに対する高い洗浄力を有するアルキルベンゼンスルホン酸塩と長鎖（アシル基の炭素数１０以上）のアミドアミン化合物、及びキレート剤、シリコーン化合物を選択する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "「オーバーフロー」や「エア噛み」が起きると、食器洗い機が異常停止したり、故障したりするおそれがある"
+        },
+        "tail": {
+            "type": "method",
+            "content": "低起泡性の界面活性剤として、オキシプロピレン基を有するポリオキシアルキレンアルキルエーテル型の非イオン界面活性剤が汎用されている"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "「オーバーフロー」や「エア噛み」が起きると、食器洗い機が異常停止したり、故障したりするおそれがある"
+        },
+        "tail": {
+            "type": "method",
+            "content": "泡抑制剤としてシリコーン化合物と特定の短鎖（炭素数６〜１０）アルキルアミン界面活性剤との組合せを採用し"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "「オーバーフロー」や「エア噛み」が起きると、食器洗い機が異常停止したり、故障したりするおそれがある"
+        },
+        "tail": {
+            "type": "method",
+            "content": "卵の固着タンパクに対する高い洗浄力を有するアルキルベンゼンスルホン酸塩と長鎖（アシル基の炭素数１０以上）のアミドアミン化合物、及びキレート剤、シリコーン化合物を選択する"
+        }
+    },
+    {
         "relation": "DEP",
         "head": {
             "type": "others",
@@ -2175,17 +2417,6 @@
         "tail": {
             "type": "method",
             "content": "三重項励起子の衝突によって一重項励起子が生成される現象（Ｔｒｉｐｌｅｔ−ｔｒｉｐｌｅｔ  ａｎｎｉｈｉｌａｔｉｏｎ、ＴＴＡ）に着目し"
-        }
-    },
-    {
-        "relation": "ADV",
-        "head": {
-            "type": "method",
-            "content": "熱活性遅延蛍光（Ｔｈｅｍａｌｌｙ  Ａｃｔｉｖａｔｅｄ  Ｄｅｌａｙｅｄ  Ｆｌｕｏｒｅｓｃｅｎｃｅ、ＴＡＤＦ）を利用した方式は、理論的な一重項励起子生成効率が約１００％となる"
-        },
-        "tail": {
-            "type": "effect",
-            "content": "飛躍的に有機電界発光素子の発光効率を高くすることができる"
         }
     },
     {
@@ -2340,6 +2571,347 @@
         "tail": {
             "type": "problem",
             "content": "特許文献４ではスカイブルー（ｓｋｙ  ｂｌｕｅ）を発するＴＡＤＦ材料を利用した有機電界発光素子が開示されているが、ディスプレイに求められる４８０ｎｍ以下の短波長青色を発する材料ではない"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "塗膜表面に常に防汚成分が露出する"
+        },
+        "tail": {
+            "type": "user_effect",
+            "content": "防汚効果を長期的に発揮する"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "加水分解型防汚塗料により形成される塗膜は"
+        },
+        "tail": {
+            "type": "method",
+            "content": "水中において塗膜表面が徐々に溶解して表面が更新され"
+        }
+    },
+    {
+        "relation": "CHAIN",
+        "head": {
+            "type": "method",
+            "content": "水中において塗膜表面が徐々に溶解して表面が更新され"
+        },
+        "tail": {
+            "type": "method",
+            "content": "塗膜表面に常に防汚成分が露出する"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "加水分解型防汚塗料により形成される塗膜は"
+        },
+        "tail": {
+            "type": "user_effect",
+            "content": "防汚効果を長期的に発揮する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "purpose",
+            "content": "船舶（特に船底部分）等の海洋構造物には、浸水部分の腐食や航行速度低下の原因となる海中生物の付着防止を目的とし"
+        },
+        "tail": {
+            "type": "method",
+            "content": "防汚塗料を塗布する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "user_effect",
+            "content": "防汚効果を長期的に発揮する"
+        },
+        "tail": {
+            "type": "method",
+            "content": "防汚塗料を塗布する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "海中で優れた防汚効果を長期間持続させるための防汚剤として一般的に用いられる亜酸化銅を添加する"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "溶解安定性が低下する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "塗膜の加水分解速度（溶解速度ともいう）が低下し"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "自己研磨性が低下する"
+        }
+    },
+    {
+        "relation": "EQU",
+        "head": {
+            "type": "problem",
+            "content": "溶解安定性が低下する"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "塗膜の加水分解速度（溶解速度ともいう）が低下し"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "塗膜の耐水性が低下し"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "クラックや剥がれといった塗膜欠陥が生じ"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "このような金属非含有樹脂を主成分とする塗料は、長期間溶解性が低下しないという利点がある"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "塗膜は、溶解安定性が低く"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "特許文献３の塗料を用いた塗膜は、溶解安定性が低く"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "加水分解速度（溶解速度ともいう）が経時で上昇する"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "特許文献３の塗料を用いた塗膜は"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "加水分解速度（溶解速度ともいう）が経時で上昇する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "加水分解速度（溶解速度ともいう）が経時で上昇する"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "過度に塗膜を消耗し、長期に渡る塗膜の維持が困難という欠点があっ"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "加水分解速度（溶解速度ともいう）が経時で上昇する"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "塗膜の耐水性が低下し、クラックや剥がれといった塗膜欠陥が生じやすい"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "このような金属非含有樹脂を主成分とする塗料は"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "貯蔵安定性が低く"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "貯蔵安定性が低く"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "粘度を抑えて塗装性を向上させるために、溶剤として環境等への影響から低減が求められている揮発性有機化合物（Ｖｏｌａｔｉｌｅ  Ｏｒｇａｎｉｃ  Ｃｏｍｐｏｕｎｄ；以下、「ＶＯＣ」ともいう。）が多く含有されている"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "溶解速度の低下による自己研磨性の低下や、溶解速度の上昇による塗膜の過度な消耗及び欠陥の発生があっ"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "塗膜の長期的な防汚効果は不十分であっ"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "２価の金属を含有する樹脂を含む塗料組成物が"
+        },
+        "tail": {
+            "type": "method",
+            "content": "海中で優れた防汚効果を長期間持続させるための防汚剤として一般的に用いられる亜酸化銅を添加する"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "従来技術では"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "塗膜の溶解安定性が充分ではなく"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "塗膜の溶解安定性が充分ではなく"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "溶解速度の低下による自己研磨性の低下や、溶解速度の上昇による塗膜の過度な消耗及び欠陥の発生があっ"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "従来技術では"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "溶解速度の低下による自己研磨性の低下や、溶解速度の上昇による塗膜の過度な消耗及び欠陥の発生があっ"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "従来技術では"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "貯蔵安定性が低い又はＶＯＣ含有量が多い"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "従来技術では"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "塗膜の長期的な防汚効果は不十分であっ"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "従来技術では塗膜の溶解安定性が充分ではなく、溶解速度の低下による自己研磨性の低下や、溶解速度の上昇による塗膜の過度な消耗及び欠陥の発生があっ"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "樹脂組成物及び防汚塗料組成物を提供する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "塗膜の長期的な防汚効果は不十分であっ"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "樹脂組成物及び防汚塗料組成物を提供する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "貯蔵安定性が低い又はＶＯＣ含有量が多い"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "樹脂組成物及び防汚塗料組成物を提供する"
+        }
+    },
+    {
+        "relation": "CHAIN",
+        "head": {
+            "type": "method",
+            "content": "溶解安定性が高く"
+        },
+        "tail": {
+            "type": "method",
+            "content": "自己研磨性を維持しつつ消耗や欠陥の発生が抑制され"
+        }
+    },
+    {
+        "relation": "CHAIN",
+        "head": {
+            "type": "method",
+            "content": "自己研磨性を維持しつつ消耗や欠陥の発生が抑制され"
+        },
+        "tail": {
+            "type": "method",
+            "content": "長期にわたって防汚効果を発現することができる塗膜を形成する"
+        }
+    },
+    {
+        "relation": "CHAIN",
+        "head": {
+            "type": "method",
+            "content": "長期にわたって防汚効果を発現することができる塗膜を形成する"
+        },
+        "tail": {
+            "type": "method",
+            "content": "貯蔵安定性及び塗装性に優れかつＶＯＣ含有量が少ない防汚塗料組成物を構成する"
+        }
+    },
+    {
+        "relation": "CHAIN",
+        "head": {
+            "type": "method",
+            "content": "貯蔵安定性及び塗装性に優れかつＶＯＣ含有量が少ない防汚塗料組成物を構成する"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "樹脂組成物及び防汚塗料組成物を提供する"
         }
     },
     {
@@ -6317,7 +6889,7 @@
         "relation": "ADV",
         "head": {
             "type": "method",
-            "content": "特許文献１には、「金属成分がＦｅ、Ｍｇ、Ｃａ、Ｃｕ及びＫからなる化合物である触媒を用い"
+            "content": "「金属成分がＦｅ、Ｍｇ、Ｃａ、Ｃｕ及びＫからなる化合物である触媒を用い"
         },
         "tail": {
             "type": "tech_effect",
@@ -6328,7 +6900,7 @@
         "relation": "ADV",
         "head": {
             "type": "method",
-            "content": "特許文献２には、「鉄、マグネシウム、カルシウム、銅、及びカリウム、並びに、モリブデン、バナジウム、タングステン、ニオブ、ホウ素、ジルコニウム、亜鉛、クロム、マンガン、チタンのうちの一種または二種以上を有する化合物からなる触媒を用い"
+            "content": "「鉄、マグネシウム、カルシウム、銅、及びカリウム、並びに、モリブデン、バナジウム、タングステン、ニオブ、ホウ素、ジルコニウム、亜鉛、クロム、マンガン、チタンのうちの一種または二種以上を有する化合物からなる触媒を用い"
         },
         "tail": {
             "type": "tech_effect",
@@ -6339,7 +6911,7 @@
         "relation": "ADV",
         "head": {
             "type": "method",
-            "content": "非特許文献１には「ＺｎＺｒＯ／ＳＡＰＯ（ＣＨＡ型ゼオライト）からなる触媒を用い"
+            "content": "「ＺｎＺｒＯ／ＳＡＰＯ（ＣＨＡ型ゼオライト）からなる触媒を用い"
         },
         "tail": {
             "type": "tech_effect",
@@ -6350,7 +6922,7 @@
         "relation": "ADV",
         "head": {
             "type": "method",
-            "content": "非特許文献２には「Ｆｅ−Ｃｏ／Ｋ−Ａｌ２Ｏ３からなる触媒を用い"
+            "content": "「Ｆｅ−Ｃｏ／Ｋ−Ａｌ２Ｏ３からなる触媒を用い"
         },
         "tail": {
             "type": "tech_effect",
@@ -6361,7 +6933,7 @@
         "relation": "ADV",
         "head": {
             "type": "method",
-            "content": "非特許文献３には「Ｆｅ／ＮＣＮＴ（Ｎドープカーボンナノチューブ）からなる触媒を用い"
+            "content": "「Ｆｅ／ＮＣＮＴ（Ｎドープカーボンナノチューブ）からなる触媒を用い"
         },
         "tail": {
             "type": "tech_effect",
@@ -7015,6 +7587,28 @@
         "tail": {
             "type": "method",
             "content": "それらの細胞におけるシグナル伝達の惹起にとって不可欠である"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "purpose",
+            "content": "加硫ゴム組成物の硬さ安定化（詳しくは、加硫ゴム組成物の老化による硬さ増大の抑制）を達成する"
+        },
+        "tail": {
+            "type": "method",
+            "content": "ピリミジン誘導体（特に、２，２−ビス（４，６−ジメチルピリミジル）ジスルフィド）を使用する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "化合物（Ｉ）は、高温および高湿の条件下で保存すると劣化し"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "その純度が低下する"
         }
     },
     {
@@ -9309,6 +9903,116 @@
         "relation": "DEP",
         "head": {
             "type": "others",
+            "content": "有機材料を利用する光電子デバイスは"
+        },
+        "tail": {
+            "type": "method",
+            "content": "作製するために使用される材料の多くは比較的安価である"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "作製するために使用される材料の多くは比較的安価である"
+        },
+        "tail": {
+            "type": "method",
+            "content": "有機光電子デバイスは無機デバイスを上回るコスト優位性の可能性を有する"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "有機材料を利用する光電子デバイスは"
+        },
+        "tail": {
+            "type": "method",
+            "content": "柔軟性等の有機材料の固有の特性により、該材料は、フレキシブル基板上での製作等の特定用途によく適したものとなり得る"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "「飽和（ｓａｔｕｒａｔｅｄ）」色と称される特定の色を"
+        },
+        "tail": {
+            "type": "method",
+            "content": "ＣＩＥ座標を使用し"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "ＣＩＥ座標を使用し"
+        },
+        "tail": {
+            "type": "effect",
+            "content": "測定することができる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "イオン化ポテンシャル（ＩＰ）は、真空準位と比べて負のエネルギーとして測定される"
+        },
+        "tail": {
+            "type": "method",
+            "content": "より高いＨＯＭＯエネルギー準位は、より小さい絶対値を有するＩＰ（あまり負でないＩＰ）に相当する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "イオン化ポテンシャル（ＩＰ）は、真空準位と比べて負のエネルギーとして測定される"
+        },
+        "tail": {
+            "type": "method",
+            "content": "より高いＬＵＭＯエネルギー準位は、より小さい絶対値を有する電子親和力（ＥＡ）（あまり負でないＥＡ）に相当する"
+        }
+    },
+    {
+        "relation": "EQU",
+        "head": {
+            "type": "method",
+            "content": "第一の仕事関数がより高い絶対値を有するならば、第一の仕事関数は第二の仕事関数「よりも大きい」又は「よりも高い"
+        },
+        "tail": {
+            "type": "method",
+            "content": "「より高い」仕事関数が更に負であることを意味する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "仕事関数は概して真空準位と比べて負数として測定される"
+        },
+        "tail": {
+            "type": "method",
+            "content": "「より高い」仕事関数が更に負であることを意味する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "頂部に真空準位がある従来のエネルギー準位図において、「より高い」仕事関数は、真空準位から下向きの方向に遠く離れているものとして例証される"
+        },
+        "tail": {
+            "type": "method",
+            "content": "ＨＯＭＯ及びＬＵＭＯエネルギー準位の定義は、仕事関数とは異なる慣例に準ずる"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
             "content": "スルファサラジン関連の処置は"
         },
         "tail": {
@@ -10282,6 +10986,61 @@
         "tail": {
             "type": "problem",
             "content": "ヒドロシリル化の対象に応じて別個の触媒を調製する必要がある"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "エバポレーターで濃縮して得た固体である"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "加工性が悪い"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "２，２’−ビス（２−ヒドロキシエトキシ）−６，６’−ジブロモ−１，１’−ビナフタレンの合成方法が"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "エバポレーターで濃縮して得た固体であるため加工性が悪い"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "２，２’−ビス（２−ヒドロキシエトキシ）−６，６’−ジブロモ−１，１’−ビナフタレンの合成方法が"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "該文献に記載の合成方法では純度が低いこと、収率が低い"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "該文献に記載の合成方法では純度が低いこと、収率が低い"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "本発明は、高純度のビナフタレン化合物の製造方法、ならびに加工性、生産性に優れる高純度のビナフタレン化合物およびその結晶多形体を提供する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "エバポレーターで濃縮して得た固体であるため加工性が悪い"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "本発明は、高純度のビナフタレン化合物の製造方法、ならびに加工性、生産性に優れる高純度のビナフタレン化合物およびその結晶多形体を提供する"
         }
     },
     {
@@ -11833,6 +12592,248 @@
         "tail": {
             "type": "effect",
             "content": "建造を容易にし"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "成形加工性、耐熱性、力学的特性および低比重等に優れている"
+        },
+        "tail": {
+            "type": "method",
+            "content": "フィルム、シートおよび各種成形品（構造部品等）に広く利用され"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "ポリエチレン、ポリプロピレンおよびポリブテン−１等のオレフィン樹脂は"
+        },
+        "tail": {
+            "type": "method",
+            "content": "成形加工性、耐熱性、力学的特性および低比重等に優れている"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "ポリエチレン、ポリプロピレンおよびポリブテン−１等のオレフィン樹脂は"
+        },
+        "tail": {
+            "type": "method",
+            "content": "フィルム、シートおよび各種成形品（構造部品等）に広く利用され"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "フィルム、シートおよび各種成形品（構造部品等）に広く利用され"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "成形後にも進行する結晶化によって、成形物が変形し"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "フィルム、シートおよび各種成形品（構造部品等）に広く利用され"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "加熱成形の際に大きな結晶を生成するために成形物の強度が不十分であったり、透明性に劣っ"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "これらの欠点は、オレフィン樹脂の結晶性に由来する"
+        },
+        "tail": {
+            "type": "method",
+            "content": "微細な結晶を急速に生成させる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "フィルム、シートおよび各種成形品（構造部品等）に広く利用され"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "加熱成形後の結晶化速度が遅いため加工時の成形サイクルが長い等の問題があり"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "オレフィン樹脂は"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "加熱成形後の結晶化速度が遅いため加工時の成形サイクルが長い等の問題があり"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "オレフィン樹脂は"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "成形後にも進行する結晶化によって、成形物が変形し"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "オレフィン樹脂は"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "加熱成形の際に大きな結晶を生成するために成形物の強度が不十分であったり、透明性に劣っ"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "加熱成形後の結晶化速度が遅いため加工時の成形サイクルが長い等の問題があり"
+        },
+        "tail": {
+            "type": "method",
+            "content": "微細な結晶を急速に生成させる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "成形後にも進行する結晶化によって、成形物が変形し"
+        },
+        "tail": {
+            "type": "method",
+            "content": "微細な結晶を急速に生成させる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "加熱成形の際に大きな結晶を生成するために成形物の強度が不十分であったり、透明性に劣っ"
+        },
+        "tail": {
+            "type": "method",
+            "content": "微細な結晶を急速に生成させる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "purpose",
+            "content": "微細な結晶を急速に生成させる"
+        },
+        "tail": {
+            "type": "method",
+            "content": "造核剤や結晶化促進剤等を添加する"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "オレフィン樹脂の"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "微細な結晶を急速に生成させる"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "method",
+            "content": "微細な結晶を急速に生成させる"
+        },
+        "tail": {
+            "type": "tech_effect",
+            "content": "解消できる"
+        }
+    },
+    {
+        "relation": "DEP",
+        "head": {
+            "type": "others",
+            "content": "これらの欠点は、オレフィン樹脂の結晶性に"
+        },
+        "tail": {
+            "type": "method",
+            "content": "微細な結晶を急速に生成させる"
+        }
+    },
+    {
+        "relation": "PENDING",
+        "head": {
+            "type": "method",
+            "content": "ナトリウム−２，２’−メチレンビス（４，６−ジ−ｔｅｒｔ−ブチルフェニル）ホスフェートは、ポリオレフィン樹脂の剛性、熱変形温度、結晶化温度を著しく向上させ、かつ、耐熱性、透明性の向上にも優れた効果を示す"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "ナトリウム−２，２’−メチレンビス（４，６−ジ−ｔｅｒｔ−ブチルフェニル）ホスフェートであっても、ポリオレフィン樹脂の耐熱性や透明性を必ずしも改善できるとは限らな"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "ナトリウム−２，２’−メチレンビス（４，６−ジ−ｔｅｒｔ−ブチルフェニル）ホスフェートであっても、ポリオレフィン樹脂の耐熱性および透明性の改善効果にバラツキがあり、これらを同時に改善できない等の課題があ"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "改善が望まれている"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "ナトリウム−２，２’−メチレンビス（４，６−ジ−ｔｅｒｔ−ブチルフェニル）ホスフェートであっても、ポリオレフィン樹脂の耐熱性および透明性の改善効果にバラツキがあり、これらを同時に改善できない等の課題があ"
+        },
+        "tail": {
+            "type": "purpose",
+            "content": "上記問題を解消し、ポリオレフィン樹脂の熱安定性および透明性を同時に改善することができる造核剤、これを用いたポリオレフィン系樹脂組成物およびその成形品を提供する"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "ナトリウム−２，２’−メチレンビス（４，６−ジ−ｔｅｒｔ−ブチルフェニル）ホスフェートであっても、ポリオレフィン樹脂の耐熱性および透明性の改善効果にバラツキがあ"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "これらを同時に改善できない"
+        }
+    },
+    {
+        "relation": "ADV",
+        "head": {
+            "type": "problem",
+            "content": "ナトリウム−２，２’−メチレンビス（４，６−ジ−ｔｅｒｔ−ブチルフェニル）ホスフェートを含有する造核剤であっても、不純物である他成分との関係において、Ｐ／Ｎａの比率が特定の範囲から外れ"
+        },
+        "tail": {
+            "type": "problem",
+            "content": "上記問題が生じる"
         }
     }
 ]

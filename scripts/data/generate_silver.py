@@ -1,4 +1,4 @@
-import os, json, sys, argparse
+import os, json, sys, argparse, torch
 from tqdm import tqdm
 
 from prompt_template import construct_prompt_for_head, construct_prompt_for_tail
@@ -59,7 +59,7 @@ def main(settings, args):
 
     model = Model(settings)
 
-    gold = load_gold(settings, args.gold_type, args.patent_domain)
+    gold = load_gold(settings, args.gold_type, args.patent_domain, shuffle=False)
 
     #generated_head = generate_head(model, gold, settings, args.patent_domain)
     generated_head = load_head(settings, args.patent_domain)

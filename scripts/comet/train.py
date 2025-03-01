@@ -1,4 +1,4 @@
-import json, sys, datasets, argparse, os, wandb
+import json, sys, datasets, argparse, os, wandb, sys, random
 
 from transformers import (
     AutoTokenizer, 
@@ -9,13 +9,33 @@ from transformers import (
 )
 from transformers.integrations import WandbCallback
 
-from utils import get_settings
-
 sys.path.append("./scripts/utils")
-from load_data import load_gold, load_silver
+from load_data import load_gold, get_settings
 
 
 ADV_TOKEN = "xEffect"
+
+
+
+def load_silver(args_cli, settings):
+
+    if args_cli.run_name == "all":
+        path = os.path.join(settings["data"]["dir_path"]["patent"]["silver"], f"{args_cli.patent_domain}_triple_{settings["tr_params"]["tr_silver_temperature"]}.json")
+    elif args_cli.run_name == "base":
+        path = os.path.join(settings["data"]["dir_path"]["patent"]["silver"], f"{args_cli.patent_domain}_triple_{settings["tr_params"]["tr_silver_temperature"]}_base.json")
+    elif args_cli.run_name == "adv":
+        path = os.path.join(settings["data"]["dir_path"]["patent"]["silver"], f"{args_cli.patent_domain}_triple_{settings["tr_params"]["tr_silver_temperature"]}_adv_init_0_no4.json")
+
+    with open(path, "r") as f:
+        data = json.load(f)
+
+    if args_cli.run_name == "all":
+        ret_data = [(d["head"], tail) for d in data for tail in d["tail"] if len(tail) > 0]
+    else:
+        ret_data = data
+
+    random.shuffle(ret_data)
+    return ret_data
 
 
 def to_input_format(head, tail, tokenizer):
@@ -26,8 +46,8 @@ def to_input_format(head, tail, tokenizer):
 
 def load_dataset(settings, args_cli, tokenizer):
 
-    gold_data = load_gold(settings["data"], "patent", args_cli.patent_domain)
-    silver_data = load_silver(settings["data"], settings["tr_params"]["tr_silver_temperature"], "patent", args_cli.patent_domain)
+    gold_data = load_gold(settings["data"], "patent", args_cli.patent_domain, True)
+    silver_data = load_silver(args_cli, settings)
 
     datasets_dict = datasets.DatasetDict({
         "train": datasets.Dataset.from_dict({"data": [to_input_format(d[0], d[1], tokenizer) for d in silver_data[:int(len(silver_data) * 0.9)]]}),
@@ -109,7 +129,7 @@ class CustomWandbCallback(WandbCallback):
 
 
 
-def main(settings, args_cli):
+def main(settings, args_cli, result_path):
 
     params_comet_tr = settings["tr_params"]
 
@@ -128,8 +148,8 @@ def main(settings, args_cli):
         eval_steps = interval,
         logging_steps = interval,
         save_steps = interval,
-        output_dir = settings["result_path"][args_cli.patent_domain]["comet"],
-        logging_dir = os.path.join(settings["result_path"][args_cli.patent_domain]["comet"], "logs"),
+        output_dir = result_path,
+        logging_dir = os.path.join(result_path, "logs"),
         per_device_train_batch_size = params_comet_tr["per_device_train_batch_size"],
         per_device_eval_batch_size = params_comet_tr["per_device_eval_batch_size"],
         learning_rate = params_comet_tr["learning_rate"],
@@ -137,6 +157,7 @@ def main(settings, args_cli):
         num_train_epochs = params_comet_tr["num_train_epochs"],
         save_total_limit = 5,
         load_best_model_at_end = True,
+        metric_for_best_model = "eval_loss",
         report_to = ["wandb", "tensorboard"],
         run_name = args_cli.run_name
     )
@@ -162,12 +183,17 @@ def main(settings, args_cli):
 
     trainer.train()
 
+    trainer.save_model(os.path.join(result_path, "model"))
+    trainer.save_state()
+
 
 
 if __name__ == "__main__":
 
     """
-    nohup python scripts/comet/train.py --device_id "2, 3" --patent_domain 情報系 --run_name trial &
+    nohup python scripts/comet/train.py --device_id "1" --patent_domain "情報系" --run_name "all" > nohup_all.out &
+    nohup python scripts/comet/train.py --device_id "2" --patent_domain "情報系" --run_name "base" > nohup_base.out &
+    nohup python scripts/comet/train.py --device_id "3" --patent_domain "情報系" --run_name "adv" > nohup_adv.out &
     """
 
     parser = argparse.ArgumentParser()
@@ -181,14 +207,15 @@ if __name__ == "__main__":
     os.environ["WANDB_LOG_MODEL"] = "checkpoint"
 
     settings = get_settings("comet")
+    result_path = os.path.join(settings["result_path"][args_cli.patent_domain], f"comet/{args_cli.run_name}")
 
     wandb.init(
         project = f"COMET_patent_{args_cli.patent_domain}", 
         name = args_cli.run_name,
         config = settings["tr_params"],
-        dir = os.path.join(settings["result_path"][args_cli.patent_domain]["comet"], "wandb")
+        dir = os.path.join(result_path, "wandb")
     )
 
-    main(settings, args_cli)
+    main(settings, args_cli ,result_path)
 
     wandb.finish()

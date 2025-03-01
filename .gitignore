@@ -21,6 +21,7 @@ _*/
 data/patent/silver/*
 data/patent/eval/*
 data/atomic/silver/*
+data/patent/train/*
 
 # result
 result_*/*
