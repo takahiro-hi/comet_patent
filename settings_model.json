@@ -9,7 +9,7 @@
         "learning_rate": 5e-6,
         "weight_decay": 0.01,
         "early_stopping": {
-            "flag": false,
+            "flag": true,
             "patience": 5
         },
         "epochs": 20,
@@ -20,7 +20,7 @@
 
     "params_adv": {
         "model_name": "tohoku-nlp/bert-base-japanese",
-        "iterations": 100,
+        "iterations": 200,
         "augmentation": {
             "flag": true,
             "end_iters": 80,
@@ -37,8 +37,8 @@
             "learning_rate": 5e-6,
             "weight_decay": 0.01,
             "hinge_loss": {
-                "start_iters": 50,
-                "end_iters": 80,
+                "start_iters": 100,
+                "end_iters": 160,
                 "max_weight": 0.3
             },
             "steps": 4,
@@ -47,7 +47,7 @@
             "sample_from_silver": {
                 "start_thresh": 0.2,
                 "end_thresh": 0.7,
-                "end_iters": 80,
+                "end_iters": 160,
                 "steps_random": 2
             }
         }
@@ -60,6 +60,6 @@
         "per_device_eval_batch_size": 16,
         "learning_rate": 2e-5,
         "weight_decay": 0.01,
-        "num_train_epochs": 1
+        "num_train_epochs": 10
     }
 }

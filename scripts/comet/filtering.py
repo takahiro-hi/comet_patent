@@ -4,7 +4,7 @@ from transformers import BertJapaneseTokenizer
 from tqdm import tqdm
 
 sys.path.append("./scripts/utils")
-from load_data import load_gold, load_silver
+from load_data import load_silver
 
 sys.path.append("./scripts/filter")
 from model import Classifier
@@ -51,19 +51,21 @@ def _pred(model, tokenizer, data, batch_size=508):
 
 def main(settings_data, settings_model, args):
 
-    silver_data = load_silver(settings_data, "patent", settings_model["params_comet"]["tr_silver_temperature"], args.patent_domain, True)
+    silver_data = load_silver(settings_data, "patent", settings_model["params_comet"]["tr_silver_temperature"], args.patent_domain, False)
     print(f"silver data: {len(silver_data)}")
+    with open(os.path.join(settings_data["dir_path"]["patent"]["train"], f"{args.patent_domain}_triple_{settings_model["params_comet"]["tr_silver_temperature"]}.json"), "w") as f:
+        json.dump(silver_data, f, indent=4, ensure_ascii=False)
 
     base_model, tokenizer = load_model("base", settings_model, args)
     selected_by_base = _pred(base_model, tokenizer, silver_data)
     print(f"selected by base: {len(selected_by_base)}")
-    with open(os.path.join(settings_data["dir_path"]["patent"]["silver"], f"{args.patent_domain}_triple_{settings_model["params_comet"]["tr_silver_temperature"]}_base.json"), "w") as f:
+    with open(os.path.join(settings_data["dir_path"]["patent"]["train"], f"{args.patent_domain}_triple_{settings_model["params_comet"]["tr_silver_temperature"]}_base.json"), "w") as f:
         json.dump(selected_by_base, f, indent=4, ensure_ascii=False)
 
     adv_model, tokenizer = load_model("adv", settings_model, args)
     selected_by_adv = _pred(adv_model, tokenizer, silver_data)
     print(f"selected by adv: {len(selected_by_adv)}")
-    with open(os.path.join(settings_data["dir_path"]["patent"]["silver"], f"{args.patent_domain}_triple_{settings_model["params_comet"]["tr_silver_temperature"]}_adv_{args.adv_model}.json"), "w") as f:
+    with open(os.path.join(settings_data["dir_path"]["patent"]["train"], f"{args.patent_domain}_triple_{settings_model["params_comet"]["tr_silver_temperature"]}_adv_{args.adv_model}.json"), "w") as f:
         json.dump(selected_by_adv, f, indent=4, ensure_ascii=False)
 
 

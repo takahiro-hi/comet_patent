@@ -5,7 +5,8 @@ from transformers import (
     AutoModelForCausalLM, 
     TrainingArguments, 
     DataCollatorForLanguageModeling, 
-    Trainer
+    Trainer,
+    EarlyStoppingCallback
 )
 from transformers.integrations import WandbCallback
 
@@ -17,25 +18,20 @@ ADV_TOKEN = "xEffect"
 
 
 
-def load_silver(args_cli, settings):
+def load_silver(args_cli, settings, run_name):
 
-    if args_cli.run_name == "all":
-        path = os.path.join(settings["data"]["dir_path"]["patent"]["silver"], f"{args_cli.patent_domain}_triple_{settings["tr_params"]["tr_silver_temperature"]}.json")
-    elif args_cli.run_name == "base":
-        path = os.path.join(settings["data"]["dir_path"]["patent"]["silver"], f"{args_cli.patent_domain}_triple_{settings["tr_params"]["tr_silver_temperature"]}_base.json")
-    elif args_cli.run_name == "adv":
-        path = os.path.join(settings["data"]["dir_path"]["patent"]["silver"], f"{args_cli.patent_domain}_triple_{settings["tr_params"]["tr_silver_temperature"]}_adv_init_0_no4.json")
+    if run_name == "all":
+        path = os.path.join(settings["data"]["dir_path"]["patent"]["train"], f'{args_cli.patent_domain}_triple_{settings["tr_params"]["tr_silver_temperature"]}.json')
+    elif run_name == "base":
+        path = os.path.join(settings["data"]["dir_path"]["patent"]["train"], f'{args_cli.patent_domain}_triple_{settings["tr_params"]["tr_silver_temperature"]}_base.json')
+    else:
+        path = os.path.join(settings["data"]["dir_path"]["patent"]["train"], f'{args_cli.patent_domain}_triple_{settings["tr_params"]["tr_silver_temperature"]}_adv_{args_cli.adv_model}.json')
 
     with open(path, "r") as f:
         data = json.load(f)
 
-    if args_cli.run_name == "all":
-        ret_data = [(d["head"], tail) for d in data for tail in d["tail"] if len(tail) > 0]
-    else:
-        ret_data = data
-
-    random.shuffle(ret_data)
-    return ret_data
+    random.shuffle(data)
+    return data
 
 
 def to_input_format(head, tail, tokenizer):
@@ -44,18 +40,17 @@ def to_input_format(head, tail, tokenizer):
 
 
 
-def load_dataset(settings, args_cli, tokenizer):
+def load_dataset(settings, args_cli, tokenizer, run_name):
 
     gold_data = load_gold(settings["data"], "patent", args_cli.patent_domain, True)
-    silver_data = load_silver(args_cli, settings)
+    silver_data = load_silver(args_cli, settings, run_name)
 
     datasets_dict = datasets.DatasetDict({
         "train": datasets.Dataset.from_dict({"data": [to_input_format(d[0], d[1], tokenizer) for d in silver_data[:int(len(silver_data) * 0.9)]]}),
         "validation": datasets.Dataset.from_dict({"data": [to_input_format(d[0], d[1], tokenizer) for d in silver_data[int(len(silver_data) * 0.9):]]}),
-        "test": datasets.Dataset.from_dict({"data": [to_input_format(d[0], d[1], tokenizer) for d in gold_data]})
     })
 
-    print(f"train: {len(datasets_dict['train'])}, validation: {len(datasets_dict['validation'])}, test: {len(datasets_dict['test'])}")
+    print(f"train: {len(datasets_dict['train'])}, validation: {len(datasets_dict['validation'])}")
 
     tokenized_datasets = datasets_dict.map(
         lambda examples: tokenizer(
@@ -129,13 +124,13 @@ class CustomWandbCallback(WandbCallback):
 
 
 
-def main(settings, args_cli, result_path):
+def main(settings, args_cli, result_path, run_name):
 
     params_comet_tr = settings["tr_params"]
 
     model = AutoModelForCausalLM.from_pretrained(params_comet_tr["model_name"]).to("cuda")
     tokenizer = AutoTokenizer.from_pretrained(params_comet_tr["model_name"], padding_side="left")
-    datasets_dict, test_data = load_dataset(settings, args_cli, tokenizer)
+    datasets_dict, test_data = load_dataset(settings, args_cli, tokenizer, run_name)
 
     assert model.get_input_embeddings().weight.shape[0] == len(tokenizer), "not added properly (1)"
     assert len(tokenizer.encode(ADV_TOKEN, add_special_tokens=False)) == 1, "not added properly (2)"
@@ -147,6 +142,7 @@ def main(settings, args_cli, result_path):
         eval_strategy = "steps",
         eval_steps = interval,
         logging_steps = interval,
+        save_strategy = "steps",
         save_steps = interval,
         output_dir = result_path,
         logging_dir = os.path.join(result_path, "logs"),
@@ -159,7 +155,7 @@ def main(settings, args_cli, result_path):
         load_best_model_at_end = True,
         metric_for_best_model = "eval_loss",
         report_to = ["wandb", "tensorboard"],
-        run_name = args_cli.run_name
+        run_name = run_name
     )
 
     tokenizer.pad_token = tokenizer.eos_token
@@ -181,6 +177,12 @@ def main(settings, args_cli, result_path):
         eval_data = test_data
     ))
 
+    early_stopping_callback = EarlyStoppingCallback(
+        early_stopping_patience = 5,
+        early_stopping_threshold = 0.01
+    )
+    trainer.add_callback(early_stopping_callback)
+
     trainer.train()
 
     trainer.save_model(os.path.join(result_path, "model"))
@@ -191,31 +193,37 @@ def main(settings, args_cli, result_path):
 if __name__ == "__main__":
 
     """
-    nohup python scripts/comet/train.py --device_id "1" --patent_domain "情報系" --run_name "all" > nohup_all.out &
-    nohup python scripts/comet/train.py --device_id "2" --patent_domain "情報系" --run_name "base" > nohup_base.out &
-    nohup python scripts/comet/train.py --device_id "3" --patent_domain "情報系" --run_name "adv" > nohup_adv.out &
+    nohup python scripts/comet/train.py --device_id "1" --patent_domain "化学系" --run_name "all" > nohup_all.out &
+    nohup python scripts/comet/train.py --device_id "2" --patent_domain "化学系" --run_name "base" > nohup_base.out &
+    nohup python scripts/comet/train.py --device_id "3" --patent_domain "化学系" --run_name "adv" --adv_model "init_1_no1" > nohup_adv.out &
     """
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--device_ids", type=str)
     parser.add_argument("--patent_domain", type=str, default="情報系")
     parser.add_argument("--run_name", type=str)
+    parser.add_argument("--adv_model", type=str, default=None)
     args_cli = parser.parse_args()
+
+    if args_cli.run_name in ["all", "base"]:
+        run_name = args_cli.run_name
+    elif args_cli.run_name == "adv":
+        run_name = f"{args_cli.run_name}_{args_cli.adv_model}"
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args_cli.device_ids
     os.environ["WANDB_PROJECT"]= f"COMET_patent_{args_cli.patent_domain}"
-    os.environ["WANDB_LOG_MODEL"] = "checkpoint"
+    os.environ["WANDB_LOG_MODEL"] = "end"
 
     settings = get_settings("comet")
-    result_path = os.path.join(settings["result_path"][args_cli.patent_domain], f"comet/{args_cli.run_name}")
+    result_path = os.path.join(settings["result_path"][args_cli.patent_domain], f"comet/{run_name}")
 
     wandb.init(
         project = f"COMET_patent_{args_cli.patent_domain}", 
-        name = args_cli.run_name,
+        name = run_name,
         config = settings["tr_params"],
         dir = os.path.join(result_path, "wandb")
     )
 
-    main(settings, args_cli ,result_path)
+    main(settings, args_cli ,result_path, run_name)
 
     wandb.finish()

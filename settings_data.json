@@ -7,7 +7,8 @@
         "patent": {
             "gold": "./data/patent/gold",
             "silver": "./data/patent/silver",
-            "eval": "./data/patent/eval"
+            "eval": "./data/patent/eval",
+            "train": "./data/patent/train"
         }
     },
 

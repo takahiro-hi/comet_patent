@@ -1,4 +1,4 @@
-import json, sys, torch
+import json, sys, torch, argparse
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from bert_score import score
 
@@ -10,14 +10,14 @@ ADV_TOKEN = "xEffect"
 
 
 
-def eval(silver_type, settings_data):
+def eval(silver_type, settings_data, patent_domain):
 
-    model_path = f"./result_情報系/comet/{silver_type}/model"
+    model_path = f"./result_{patent_domain}/comet/{silver_type}/model"
 
     model = AutoModelForCausalLM.from_pretrained(model_path).to("cuda")
     tokenizer = AutoTokenizer.from_pretrained("nlp-waseda/comet-v2-gpt2-small-japanese", padding_side="left")
 
-    gold_data = load_gold(settings_data, "patent", "情報系", False)
+    gold_data = load_gold(settings_data, "patent", patent_domain, False)
 
     test_dataset = {
         "inputs": [d[0] + ADV_TOKEN for d in gold_data],
@@ -47,7 +47,7 @@ def eval(silver_type, settings_data):
     del input_ids
     torch.cuda.empty_cache()
     
-    return generated_data, test_dataset["inputs"], test_dataset["outputs"]
+    return generated_data, test_dataset
 
 
 
@@ -64,22 +64,29 @@ def calc_metrics(gold, pred):
 
 
 if __name__ == "__main__":
+
+    # python scripts/comet/eval.py --patent_domain 化学系 --adv_model adv_init_1_no2
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--patent_domain", type=str, default="化学系")
+    parser.add_argument("--adv_model", type=str)
+    args = parser.parse_args()
     
     with open("./settings_data.json", "r") as f:
         settings_data = json.load(f)
 
-    gened_all, gold_all, ans = eval("all", settings_data)
-    gened_base, test_base, _ = eval("base_model", settings_data)
-    gened_adv, test_adv, _ = eval("adv_model", settings_data)
+    gened_all, test_data = eval("all", settings_data, args.patent_domain)
+    gened_base, test_data_1 = eval("base", settings_data, args.patent_domain)
+    gened_adv, test_data_2 = eval(args.adv_model, settings_data, args.patent_domain)
 
-    for t_all, t_base, t_adv in zip(gold_all, test_base, test_adv):
+    for t_all, t_base, t_adv in zip(test_data["inputs"], test_data_1["inputs"], test_data_2["inputs"]):
         assert t_all == t_base == t_adv
     
     save_data = []
-    for g_all, g_base, g_adv, head, a in zip(gened_all, gened_base, gened_adv, gold_all, ans):
+    for g_all, g_base, g_adv, test_in, test_out in zip(gened_all, gened_base, gened_adv, test_data["inputs"], test_data["outputs"]):
         save_data.append({
-            "input_head": head,
-            "ground_truth": a,
+            "input_head": test_in,
+            "ground_truth": test_out,
             "predication": {
                 "all": g_all,
                 "base": g_base,
@@ -87,12 +94,12 @@ if __name__ == "__main__":
             } 
         })
 
-    with open("./result_情報系/comet/eval_data.json", "w") as f:
+    with open(f"./result_{args.patent_domain}/comet/eval_data.json", "w") as f:
         f.write(json.dumps(save_data, indent=4, ensure_ascii=False))
     
-    metrics_all = calc_metrics(ans, gened_all)
-    metrics_base = calc_metrics(ans, gened_base)
-    metrics_adv = calc_metrics(ans, gened_adv)
+    metrics_all = calc_metrics(test_data["outputs"], gened_all)
+    metrics_base = calc_metrics(test_data["outputs"], gened_base)
+    metrics_adv = calc_metrics(test_data["outputs"], gened_adv)
     save_metrics = {
         "Precision": {
             "all": metrics_all["Precision"],
@@ -110,5 +117,5 @@ if __name__ == "__main__":
             "adv": metrics_adv["F1"]
         }
     }
-    with open("./result_情報系/comet/eval_metrics.json", "w") as f:
+    with open(f"./result_{args.patent_domain}/comet/eval_metrics.json", "w") as f:
         f.write(json.dumps(save_metrics, indent=4, ensure_ascii=False))

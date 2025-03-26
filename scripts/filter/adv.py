@@ -218,7 +218,7 @@ class SymbolicKDUsingAdversarialNet():
 
     def test(self):
 
-        model_path = os.path.join(self.settings["result_path"].format(self.args.patent_domain, self.args.temperature_tail), f"filter_base/no_augmentation_es/filter.pth")
+        model_path = os.path.join(self.settings["result_path"][self.args.patent_domain], f"filter_base/no_augmentation_es/filter.pth")
         state_dict = torch.load(model_path, map_location="cuda", weights_only=True)
         base_model = Classifier(self.tr_params["model_name"]).to("cuda")
         base_model.load_state_dict(state_dict)
@@ -232,7 +232,7 @@ def main(result_path, settings, args):
 
     gan = SymbolicKDUsingAdversarialNet(result_path, settings, args)
     gan.train_gan()
-    gan.test()
+    #gan.test()
 
 
 
